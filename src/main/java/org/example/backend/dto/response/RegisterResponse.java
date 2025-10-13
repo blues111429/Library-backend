@@ -1,9 +1,9 @@
-package org.example.backend.dto;
+package org.example.backend.dto.response;
 
 import lombok.Data;
 
 @Data
 public class RegisterResponse {
     private String message;
-    private Integer user_id;
+    private Integer userId;
 }

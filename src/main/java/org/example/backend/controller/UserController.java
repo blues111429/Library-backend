@@ -1,7 +1,9 @@
 package org.example.backend.controller;
 
-import org.example.backend.dto.RegisterRequest;
-import org.example.backend.dto.RegisterResponse;
+import org.example.backend.dto.request.LoginRequest;
+import org.example.backend.dto.request.RegisterRequest;
+import org.example.backend.dto.response.LoginResponse;
+import org.example.backend.dto.response.RegisterResponse;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,11 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return userService.login(request);
     }
 
     @PostMapping("/register")

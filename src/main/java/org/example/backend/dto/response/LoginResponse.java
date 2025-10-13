@@ -1,0 +1,11 @@
+package org.example.backend.dto.response;
+
+import lombok.Data;
+
+@Data
+public class LoginResponse {
+    private String message;
+    private Integer userId;
+    private String username;
+    private String type;
+}
