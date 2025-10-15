@@ -8,6 +8,7 @@ import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
+import org.example.backend.util.JwtUtil;
 import org.example.backend.util.PasswordUtil;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -17,8 +18,10 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     //mapper注入(构造方法)
     private final UserMapper userMapper;
-    public UserServiceImpl (UserMapper userMapper) {
+    private final JwtUtil jwtUtil;
+    public UserServiceImpl (UserMapper userMapper,  JwtUtil jwtUtil) {
         this.userMapper = userMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     //登录
@@ -39,10 +42,14 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.updateLastLogin(user.getUser_id());
+
+        String token = jwtUtil.generateToken(user.getUsername());
+
         response.setMessage("登录成功");
         response.setUserId(user.getUser_id());
         response.setUsername(user.getUsername());
         response.setType(user.getType());
+        response.setToken(token);
         return response;
     }
 
@@ -72,8 +79,12 @@ public class UserServiceImpl implements UserService {
             response.setMessage("注册失败");
             return response;
         }
+
+        String token =  jwtUtil.generateToken(user.getUsername());
+
         response.setMessage("注册成功");
         response.setUserId(user.getUser_id());
+        response.setToken(token);
         return response;
     }
 

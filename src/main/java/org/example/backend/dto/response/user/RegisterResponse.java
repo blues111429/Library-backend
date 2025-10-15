@@ -6,4 +6,5 @@ import lombok.Data;
 public class RegisterResponse {
     private String message;
     private Integer userId;
+    private String token;
 }
