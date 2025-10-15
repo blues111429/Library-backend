@@ -1,14 +1,14 @@
-package org.example.backend.dto.response;
+package org.example.backend.dto.request.user;
 
 import lombok.Data;
 
 @Data
-public class UserInfoResponse {
-    private String message;
+public class RegisterRequest {
     private String username;
+    private String password;
     private String name;
-    private String type;
     private String gender;
+    private String type;
     private String phone;
     private String email;
 }

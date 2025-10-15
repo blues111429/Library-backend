@@ -1,16 +1,15 @@
 package org.example.backend.service.impl;
 
-import org.example.backend.dto.request.DeleteRequest;
-import org.example.backend.dto.request.LoginRequest;
-import org.example.backend.dto.request.RegisterRequest;
-import org.example.backend.dto.request.UserInfoRequest;
-import org.example.backend.dto.response.*;
+import org.example.backend.dto.request.user.DeleteRequest;
+import org.example.backend.dto.request.user.LoginRequest;
+import org.example.backend.dto.request.user.RegisterRequest;
+import org.example.backend.dto.request.user.UserInfoRequest;
+import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
 import org.example.backend.util.PasswordUtil;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +39,6 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.updateLastLogin(user.getUser_id());
-
         response.setMessage("登录成功");
         response.setUserId(user.getUser_id());
         response.setUsername(user.getUsername());
@@ -60,7 +58,6 @@ public class UserServiceImpl implements UserService {
         }
 
         String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
-
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword_hash(encryptedPassword);
@@ -134,7 +131,6 @@ public class UserServiceImpl implements UserService {
             response.setLast_login(user.getLast_login());
             userListResponse.add(response);
         }
-
         return userListResponse;
     }
 }

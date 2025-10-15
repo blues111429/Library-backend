@@ -1,10 +1,10 @@
 package org.example.backend.controller;
 
-import org.example.backend.dto.request.DeleteRequest;
-import org.example.backend.dto.request.LoginRequest;
-import org.example.backend.dto.request.RegisterRequest;
-import org.example.backend.dto.request.UserInfoRequest;
-import org.example.backend.dto.response.*;
+import org.example.backend.dto.request.user.DeleteRequest;
+import org.example.backend.dto.request.user.LoginRequest;
+import org.example.backend.dto.request.user.RegisterRequest;
+import org.example.backend.dto.request.user.UserInfoRequest;
+import org.example.backend.dto.response.user.*;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
