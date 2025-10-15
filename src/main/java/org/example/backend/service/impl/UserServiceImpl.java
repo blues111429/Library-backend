@@ -1,15 +1,15 @@
 package org.example.backend.service.impl;
 
-import org.example.backend.dto.request.user.DeleteRequest;
-import org.example.backend.dto.request.user.LoginRequest;
-import org.example.backend.dto.request.user.RegisterRequest;
-import org.example.backend.dto.request.user.UserInfoRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.el.parser.Token;
+import org.example.backend.dto.request.user.*;
 import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
 import org.example.backend.util.JwtUtil;
 import org.example.backend.util.PasswordUtil;
+import org.example.backend.util.TokenBlacklist;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,5 +143,21 @@ public class UserServiceImpl implements UserService {
             userListResponse.add(response);
         }
         return userListResponse;
+    }
+
+    //退出登录
+    @Override
+    public LogoutResponse logout(LogoutRequest logoutRequest, HttpServletRequest httpRequest) {
+        LogoutResponse response = new LogoutResponse();
+
+        String authHeader = httpRequest.getHeader("Authorization");
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenBlacklist.add(token);
+            response.setMessage("退出成功");
+        } else {
+            response.setMessage("未提供token， 退出失败");
+        }
+        return response;
     }
 }

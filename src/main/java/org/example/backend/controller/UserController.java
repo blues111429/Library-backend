@@ -1,9 +1,7 @@
 package org.example.backend.controller;
 
-import org.example.backend.dto.request.user.DeleteRequest;
-import org.example.backend.dto.request.user.LoginRequest;
-import org.example.backend.dto.request.user.RegisterRequest;
-import org.example.backend.dto.request.user.UserInfoRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.*;
 import org.example.backend.dto.response.user.*;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,4 +35,7 @@ public class UserController {
 
     @GetMapping("/userList")
     public List<UserListResponse> userList(){ return userService.userList(); }
+
+    @PostMapping("/logout")
+    public LogoutResponse logout(@RequestBody LogoutRequest request, HttpServletRequest httpRequest){ return userService.logout(request,httpRequest); }
 }

@@ -1,9 +1,7 @@
 package org.example.backend.service;
 
-import org.example.backend.dto.request.user.DeleteRequest;
-import org.example.backend.dto.request.user.LoginRequest;
-import org.example.backend.dto.request.user.RegisterRequest;
-import org.example.backend.dto.request.user.UserInfoRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.*;
 import org.example.backend.dto.response.user.*;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -23,4 +21,7 @@ public interface UserService {
 
     //获取用户列表
     List<UserListResponse> userList();
+
+    //退出登录
+    LogoutResponse logout(LogoutRequest request, HttpServletRequest httpRequest);
 }

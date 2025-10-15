@@ -2,6 +2,7 @@ package org.example.backend.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+//密码加密
 public class PasswordUtil {
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 

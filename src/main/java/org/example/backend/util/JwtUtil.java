@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
+//JWT
 @Component
 public class JwtUtil {
     private final Key SECRET_KEY = Keys.hmacShaKeyFor("YuWeiZhang1234567890ABCDEF!@#$%^&*()_+".getBytes());
