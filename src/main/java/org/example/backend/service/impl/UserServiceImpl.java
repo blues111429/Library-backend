@@ -1,9 +1,13 @@
 package org.example.backend.service.impl;
 
+import org.example.backend.dto.request.DeleteRequest;
 import org.example.backend.dto.request.LoginRequest;
 import org.example.backend.dto.request.RegisterRequest;
+import org.example.backend.dto.request.UserInfoRequest;
+import org.example.backend.dto.response.DeleteResponse;
 import org.example.backend.dto.response.LoginResponse;
 import org.example.backend.dto.response.RegisterResponse;
+import org.example.backend.dto.response.UserInfoResponse;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
@@ -73,6 +77,41 @@ public class UserServiceImpl implements UserService {
         }
         response.setMessage("注册成功");
         response.setUserId(user.getUser_id());
+        return response;
+    }
+
+    //删除用户
+    @Override
+    public DeleteResponse delete(DeleteRequest request) {
+        Integer userId = request.getUserId();
+        int result = userMapper.delete(userId);
+        DeleteResponse response = new DeleteResponse();
+        if(result <= 0) {
+            response.setMessage("未找到该用户");
+            return response;
+        } else {
+            response.setMessage("删除成功");
+            return response;
+        }
+    }
+
+    //获取用户信息
+    @Override
+    public UserInfoResponse userInfo(UserInfoRequest request) {
+        String username = request.getUsername();
+        UserInfoResponse response = new UserInfoResponse();
+        User user = userMapper.findByUsername(username);
+        if( user == null ) {
+            response.setMessage("没有找到该用户");
+            return response;
+        }
+        response.setUsername(user.getUsername());
+        response.setName(user.getName());
+        response.setType(user.getType());
+        response.setGender(user.getGender());
+        response.setPhone(user.getPhone());
+        response.setEmail(user.getEmail());
+        response.setMessage("获取成功");
         return response;
     }
 }
