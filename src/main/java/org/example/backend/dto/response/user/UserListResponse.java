@@ -10,7 +10,7 @@ public class UserListResponse {
     private String username;
     private String name;
     private String gender;
-    private String type;
+    private String typeCn;
     private String phone;
     private String email;
     private Integer status;

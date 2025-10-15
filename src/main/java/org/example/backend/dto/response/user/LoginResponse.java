@@ -7,6 +7,6 @@ public class LoginResponse {
     private String message;
     private Integer userId;
     private String username;
-    private String type;
+    private String typeCn;
     private String token;
 }

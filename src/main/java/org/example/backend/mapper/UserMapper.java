@@ -6,8 +6,12 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
+    //获取用户列表
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user")
+    List<User> userList();
+
     //根据用户名查找用户并检查用户状态
-    @Select("Select * FROM user Where username = #{username} AND status = 1")
+    @Select("Select *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user Where username = #{username} AND status = 1")
     User findByUsername(@Param("username") String username);
 
     //插入用户
@@ -24,7 +28,4 @@ public interface UserMapper {
     @Update("UPDATE user SET last_login = NOW() WHERE user_id = #{userId}")
     void updateLastLogin(@Param("userId") int userId);
 
-    //获取用户列表
-    @Select("SELECT * FROM user")
-    List<User> userList();
 }

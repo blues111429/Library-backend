@@ -1,7 +1,6 @@
 package org.example.backend.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.el.parser.Token;
 import org.example.backend.dto.request.user.*;
 import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
@@ -42,13 +41,12 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.updateLastLogin(user.getUser_id());
-
         String token = jwtUtil.generateToken(user.getUsername());
 
         response.setMessage("登录成功");
         response.setUserId(user.getUser_id());
         response.setUsername(user.getUsername());
-        response.setType(user.getType());
+        response.setTypeCn(user.getType_cn());
         response.setToken(token);
         return response;
     }
@@ -96,30 +94,37 @@ public class UserServiceImpl implements UserService {
         DeleteResponse response = new DeleteResponse();
         if(result <= 0) {
             response.setMessage("未找到该用户");
-            return response;
         } else {
             response.setMessage("删除成功");
-            return response;
         }
+        return response;
     }
 
     //获取用户信息
     @Override
-    public UserInfoResponse userInfo(UserInfoRequest request) {
-        String username = request.getUsername();
-        UserInfoResponse response = new UserInfoResponse();
+    public UserInfoResponse userInfo(HttpServletRequest httpRequest) {
+        String authHeader  = httpRequest.getHeader("Authorization");
+        System.out.println("Received authHeader : " + authHeader);
+        if(authHeader  == null || !authHeader .startsWith("Bearer ")) {
+            throw new RuntimeException("未登录或登录已过期，请先登录");
+        }
+
+        String token = authHeader.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
         User user = userMapper.findByUsername(username);
+        UserInfoResponse response = new UserInfoResponse();
         if( user == null ) {
             response.setMessage("没有找到该用户");
             return response;
         }
         response.setUsername(user.getUsername());
         response.setName(user.getName());
-        response.setType(user.getType());
+        response.setTypeCn(user.getType_cn());
         response.setGender(user.getGender());
         response.setPhone(user.getPhone());
         response.setEmail(user.getEmail());
         response.setMessage("获取成功");
+
         return response;
     }
 
@@ -134,7 +139,7 @@ public class UserServiceImpl implements UserService {
             response.setUsername(user.getUsername());
             response.setName(user.getName());
             response.setGender(user.getGender());
-            response.setType(user.getType());
+            response.setTypeCn(user.getType_cn());
             response.setPhone(user.getPhone());
             response.setEmail(user.getEmail());
             response.setStatus(user.getStatus());

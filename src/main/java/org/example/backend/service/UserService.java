@@ -17,7 +17,7 @@ public interface UserService {
     DeleteResponse delete(DeleteRequest request);
 
     //用户信息
-    UserInfoResponse userInfo(UserInfoRequest request);
+    UserInfoResponse userInfo(HttpServletRequest httpRequest);
 
     //获取用户列表
     List<UserListResponse> userList();

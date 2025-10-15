@@ -12,6 +12,7 @@ public class User {
     private String name;
     private String gender;
     private String type;
+    private String type_cn;
     private String phone;
     private String email;
     private Integer status;
