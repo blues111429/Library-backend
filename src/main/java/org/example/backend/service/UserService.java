@@ -4,11 +4,9 @@ import org.example.backend.dto.request.DeleteRequest;
 import org.example.backend.dto.request.LoginRequest;
 import org.example.backend.dto.request.RegisterRequest;
 import org.example.backend.dto.request.UserInfoRequest;
-import org.example.backend.dto.response.DeleteResponse;
-import org.example.backend.dto.response.LoginResponse;
-import org.example.backend.dto.response.RegisterResponse;
-import org.example.backend.dto.response.UserInfoResponse;
+import org.example.backend.dto.response.*;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public interface UserService {
@@ -22,4 +20,7 @@ public interface UserService {
 
     //用户信息
     UserInfoResponse userInfo(UserInfoRequest request);
+
+    //获取用户列表
+    List<UserListResponse> userList();
 }

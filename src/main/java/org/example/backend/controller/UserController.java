@@ -4,16 +4,11 @@ import org.example.backend.dto.request.DeleteRequest;
 import org.example.backend.dto.request.LoginRequest;
 import org.example.backend.dto.request.RegisterRequest;
 import org.example.backend.dto.request.UserInfoRequest;
-import org.example.backend.dto.response.DeleteResponse;
-import org.example.backend.dto.response.LoginResponse;
-import org.example.backend.dto.response.RegisterResponse;
-import org.example.backend.dto.response.UserInfoResponse;
+import org.example.backend.dto.response.*;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -39,4 +34,7 @@ public class UserController {
 
     @PostMapping("/userInfo")
     public UserInfoResponse userInfo(@RequestBody UserInfoRequest request){ return userService.userInfo(request); }
+
+    @GetMapping("/userList")
+    public List<UserListResponse> userList(){ return userService.userList(); }
 }

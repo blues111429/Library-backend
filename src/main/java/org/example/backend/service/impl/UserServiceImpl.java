@@ -4,15 +4,15 @@ import org.example.backend.dto.request.DeleteRequest;
 import org.example.backend.dto.request.LoginRequest;
 import org.example.backend.dto.request.RegisterRequest;
 import org.example.backend.dto.request.UserInfoRequest;
-import org.example.backend.dto.response.DeleteResponse;
-import org.example.backend.dto.response.LoginResponse;
-import org.example.backend.dto.response.RegisterResponse;
-import org.example.backend.dto.response.UserInfoResponse;
+import org.example.backend.dto.response.*;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
 import org.example.backend.util.PasswordUtil;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -113,5 +113,28 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail());
         response.setMessage("获取成功");
         return response;
+    }
+
+    //获取用户列表
+    @Override
+    public List<UserListResponse> userList() {
+        List<User> users = userMapper.userList();
+        List<UserListResponse> userListResponse = new ArrayList<>();
+        for(User user : users) {
+            UserListResponse response = new UserListResponse();
+            response.setUser_id(user.getUser_id());
+            response.setUsername(user.getUsername());
+            response.setName(user.getName());
+            response.setGender(user.getGender());
+            response.setType(user.getType());
+            response.setPhone(user.getPhone());
+            response.setEmail(user.getEmail());
+            response.setStatus(user.getStatus());
+            response.setCreate_time(user.getCreate_time());
+            response.setLast_login(user.getLast_login());
+            userListResponse.add(response);
+        }
+
+        return userListResponse;
     }
 }

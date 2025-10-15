@@ -2,6 +2,7 @@ package org.example.backend.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.example.backend.model.User;
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -22,4 +23,8 @@ public interface UserMapper {
     //更新登录时间
     @Update("UPDATE user SET last_login = NOW() WHERE user_id = #{userId}")
     void updateLastLogin(@Param("userId") int userId);
+
+    //获取用户列表
+    @Select("SELECT * FROM user")
+    List<User> userList();
 }
