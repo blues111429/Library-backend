@@ -39,7 +39,7 @@ public class UserController {
 
     //用户列表
     @GetMapping("/userList")
-    public List<UserListResponse> userList(){ return userService.userList(); }
+    public List<UserListResponse> userList(HttpServletRequest httpRequest){ return userService.userList(httpRequest); }
 
     //退出登录
     @PostMapping("/logout")

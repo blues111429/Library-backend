@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
         LoginResponse response = new LoginResponse();
 
         User user = userMapper.findByUsername(request.getUsername());
+        System.out.println("当前用户:"+user);
         if( user == null ) {
             response.setMessage("用户名不存在");
             return response;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
     public RegisterResponse register(RegisterRequest request) {
         RegisterResponse response = new RegisterResponse();
 
-        User existing = userMapper.findByUsername(request.getUsername());
+        User existing = userMapper.findByOnlyUsername(request.getUsername());
         if (existing != null) {
             response.setMessage("用户名已存在");
             return response;
@@ -69,6 +70,7 @@ public class UserServiceImpl implements UserService {
         user.setName(request.getName());
         user.setGender(request.getGender());
         user.setType(request.getType());
+        user.setType_cn(request.getType());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
         user.setStatus(1);
@@ -130,24 +132,43 @@ public class UserServiceImpl implements UserService {
 
     //获取用户列表
     @Override
-    public List<UserListResponse> userList() {
+    public List<UserListResponse> userList(HttpServletRequest httpRequest) {
+
+        String token = httpRequest.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("未授权访问");
+        }
+
+        token = token.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
+        User currentUser = userMapper.findByUsername(username);
+        if(currentUser == null || !"管理员".equals(currentUser.getType_cn())) {
+            throw new RuntimeException("权限不足，仅管理员可以访问");
+        }
+
         List<User> users = userMapper.userList();
         List<UserListResponse> userListResponse = new ArrayList<>();
         for(User user : users) {
-            UserListResponse response = new UserListResponse();
-            response.setUser_id(user.getUser_id());
-            response.setUsername(user.getUsername());
-            response.setName(user.getName());
-            response.setGender(user.getGender());
-            response.setTypeCn(user.getType_cn());
-            response.setPhone(user.getPhone());
-            response.setEmail(user.getEmail());
-            response.setStatus(user.getStatus());
-            response.setCreate_time(user.getCreate_time());
-            response.setLast_login(user.getLast_login());
+            UserListResponse response = getUserListResponse(user);
             userListResponse.add(response);
         }
         return userListResponse;
+    }
+
+    //设置返回的response
+    private static UserListResponse getUserListResponse(User user) {
+        UserListResponse response = new UserListResponse();
+        response.setUser_id(user.getUser_id());
+        response.setUsername(user.getUsername());
+        response.setName(user.getName());
+        response.setGender(user.getGender());
+        response.setTypeCn(user.getType_cn());
+        response.setPhone(user.getPhone());
+        response.setEmail(user.getEmail());
+        response.setStatus(user.getStatus());
+        response.setCreate_time(user.getCreate_time());
+        response.setLast_login(user.getLast_login());
+        return response;
     }
 
     //退出登录

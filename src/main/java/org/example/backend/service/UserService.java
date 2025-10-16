@@ -20,7 +20,7 @@ public interface UserService {
     UserInfoResponse userInfo(HttpServletRequest httpRequest);
 
     //获取用户列表
-    List<UserListResponse> userList();
+    List<UserListResponse> userList(HttpServletRequest httpRequest);
 
     //退出登录
     LogoutResponse logout(LogoutRequest request, HttpServletRequest httpRequest);

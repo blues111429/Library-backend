@@ -14,6 +14,10 @@ public interface UserMapper {
     @Select("Select *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user Where username = #{username} AND status = 1")
     User findByUsername(@Param("username") String username);
 
+    //用户名唯一性查询
+    @Select("SELECT * FROM user WHERE username = #{username}")
+    User findByOnlyUsername(@Param("username") String username);
+
     //插入用户
     @Insert("INSERT INTO user (username, password_hash, name, gender, type, phone, email, status, create_time)" +
             "VALUES (#{username}, #{password_hash}, #{name}, #{gender}, #{type}, #{phone}, #{email}, #{status}, NOW())")
