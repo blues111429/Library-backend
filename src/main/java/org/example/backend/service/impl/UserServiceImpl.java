@@ -10,6 +10,7 @@ import org.example.backend.service.UserService;
 import org.example.backend.util.JwtUtil;
 import org.example.backend.util.PasswordUtil;
 import org.example.backend.util.TokenBlacklist;
+import org.example.backend.util.TokenStore;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,12 @@ public class UserServiceImpl implements UserService {
         //生成token
         String token = jwtUtil.generateToken(user.getUsername());
 
-        LoginResponse response = new LoginResponse();
-        response.setUserId(user.getUser_id());
-        response.setUsername(user.getUsername());
-        response.setTypeCn(user.getType_cn());
-        response.setToken(token);
+        LoginResponse response = LoginResponse.builder()
+                                .userId(user.getUser_id())
+                                .username(user.getUsername())
+                                .typeCn(user.getType_cn())
+                                .token(token).build();
+        TokenStore.save(user.getUser_id(), token);
         return Result.success("登录成功", response);
     }
 
@@ -84,6 +86,7 @@ public class UserServiceImpl implements UserService {
     //删除用户
     @Override
     public DeleteResponse delete(DeleteRequest request) {
+
         Integer userId = request.getUserId();
         int result = userMapper.delete(userId);
         DeleteResponse response = new DeleteResponse();
@@ -97,46 +100,39 @@ public class UserServiceImpl implements UserService {
 
     //获取用户信息
     @Override
-    public UserInfoResponse userInfo(HttpServletRequest httpRequest) {
-        String token  = httpRequest.getHeader("Authorization");
-        if(token  == null || !token .startsWith("Bearer ")) {
-            throw new RuntimeException("未登录或登录已过期，请先登录");
+    public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest) {
+        String message = tokenCheck(httpRequest);
+        if(!message.isEmpty()) {
+            return Result.error(message);
         }
 
+        String token  = httpRequest.getHeader("Authorization");
         token = token.substring(7);
         String username = jwtUtil.getUsernameFromToken(token);
+
         User user = userMapper.findByUsername(username);
-        UserInfoResponse response = new UserInfoResponse();
-
-        if( user == null ) {
-            response.setMessage("没有找到该用户");
-            return response;
-        }
-        response.setUsername(user.getUsername());
-        response.setName(user.getName());
-        response.setTypeCn(user.getType_cn());
-        response.setGender(user.getGender());
-        response.setPhone(user.getPhone());
-        response.setEmail(user.getEmail());
-        response.setMessage("获取成功");
-
-        return response;
+        if( user == null ) { return Result.error("没有找到该用户"); }
+        UserInfoResponse response = UserInfoResponse.builder()
+                                    .username(user.getUsername())
+                                    .name(user.getName())
+                                    .typeCn(user.getType_cn())
+                                    .gender(user.getGender())
+                                    .phone(user.getPhone())
+                                    .email(user.getEmail())
+                                    .build();
+        return Result.success("获取成功", response);
     }
 
     //退出登录
     @Override
-    public LogoutResponse logout(LogoutRequest logoutRequest, HttpServletRequest httpRequest) {
-        LogoutResponse response = new LogoutResponse();
-
+    public Result<LogoutResponse> logout(HttpServletRequest httpRequest) {
         String authHeader = httpRequest.getHeader("Authorization");
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            TokenBlacklist.add(token);
-            response.setMessage("退出成功");
-        } else {
-            response.setMessage("未提供token， 退出失败");
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Result.error("未提供token,退出失败");
         }
-        return response;
+        String token = authHeader.substring(7);
+        TokenBlacklist.add(token);
+        return Result.success("退出成功");
     }
 
     //获取用户列表(管理员)
@@ -178,12 +174,33 @@ public class UserServiceImpl implements UserService {
         if (token == null || !token.startsWith("Bearer ")) {
             return Result.error("未授权访问,请先登录");
         }
-        System.out.println(request.getUserId());
+
+        int userId = request.getUserId();
+        int newStatus = request.getStatus();
+
         if(userMapper.updateUserStatus(request.getUserId(), request.getStatus()) > 0) {
+
+            if(newStatus <= 0) {
+                String userToken = TokenStore.get(userId);
+                if(userToken != null) {
+                    TokenBlacklist.add(userToken);
+                    TokenStore.remove(userId);
+                }
+            }
             return Result.success("用户状态更新成功");
         } else {
             return Result.error("用户状态更新失败");
         }
+    }
+
+    //未登录检验
+    private static String tokenCheck(HttpServletRequest httpRequest) {
+        String token = httpRequest.getHeader("Authorization");
+        String message = "";
+        if(token == null || !token.startsWith("Bearer ")) {
+            message = "未授权访问，请先登录";
+        }
+        return message;
     }
 
     //设置用户注册

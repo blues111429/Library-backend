@@ -34,7 +34,7 @@ public class UserController {
 
     //用户查看个人信息
     @GetMapping("/userInfo")
-    public UserInfoResponse userInfo(HttpServletRequest httpRequest){ return userService.userInfo(httpRequest); }
+    public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest){ return userService.userInfo(httpRequest); }
 
     //用户列表(管理员)
     @GetMapping("/userList")
@@ -46,5 +46,5 @@ public class UserController {
 
     //退出登录
     @PostMapping("/logout")
-    public LogoutResponse logout(@RequestBody LogoutRequest request, HttpServletRequest httpRequest){ return userService.logout(request,httpRequest); }
+    public Result<LogoutResponse> logout(HttpServletRequest httpRequest){ return userService.logout(httpRequest); }
 }
