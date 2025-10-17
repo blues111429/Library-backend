@@ -10,9 +10,14 @@ public interface UserMapper {
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user")
     List<User> userList();
 
-    //根据用户名查找用户并检查用户状态
-    @Select("Select *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user Where username = #{username} AND status = 1")
+    //根据用户名查找用户
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM user Where username = #{username}")
     User findByUsername(@Param("username") String username);
+
+    //检查用户状态
+    @Select("Select status FROM user WHERE username = #{username}")
+    Integer userStatus(@Param("username") String username);
+
 
     //用户名唯一性查询
     @Select("SELECT * FROM user WHERE username = #{username}")
@@ -27,6 +32,10 @@ public interface UserMapper {
     //删除用户
     @Delete("update user SET status = 0 WHERE user_id = #{userId}")
     int delete(@Param("userId") int userId);
+
+    //更新账号状态
+    @Update("UPDATE user SET status = #{status} WHERE user_id = #{userId}")
+    int updateUserStatus(@Param("userId") int userId, @Param("status") Integer status);
 
     //更新登录时间
     @Update("UPDATE user SET last_login = NOW() WHERE user_id = #{userId}")

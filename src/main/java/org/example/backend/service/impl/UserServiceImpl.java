@@ -31,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
         if( user == null ) { return Result.error("用户名不存在"); }
 
+        if(userMapper.userStatus(user.getUsername()) <= 0) {return Result.error("该用户已被冻结，请联系管理员");}
+
         boolean match = PasswordUtil.matches(request.getPassword(), user.getPassword_hash());
         if(!match) { return Result.error("密码错误"); }
 
@@ -96,13 +98,12 @@ public class UserServiceImpl implements UserService {
     //获取用户信息
     @Override
     public UserInfoResponse userInfo(HttpServletRequest httpRequest) {
-        String authHeader  = httpRequest.getHeader("Authorization");
-        System.out.println("Received authHeader : " + authHeader);
-        if(authHeader  == null || !authHeader .startsWith("Bearer ")) {
+        String token  = httpRequest.getHeader("Authorization");
+        if(token  == null || !token .startsWith("Bearer ")) {
             throw new RuntimeException("未登录或登录已过期，请先登录");
         }
 
-        String token = authHeader.substring(7);
+        token = token.substring(7);
         String username = jwtUtil.getUsernameFromToken(token);
         User user = userMapper.findByUsername(username);
         UserInfoResponse response = new UserInfoResponse();
@@ -122,7 +123,23 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    //获取用户列表
+    //退出登录
+    @Override
+    public LogoutResponse logout(LogoutRequest logoutRequest, HttpServletRequest httpRequest) {
+        LogoutResponse response = new LogoutResponse();
+
+        String authHeader = httpRequest.getHeader("Authorization");
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenBlacklist.add(token);
+            response.setMessage("退出成功");
+        } else {
+            response.setMessage("未提供token， 退出失败");
+        }
+        return response;
+    }
+
+    //获取用户列表(管理员)
     @Override
     public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest) {
         String token = httpRequest.getHeader("Authorization");
@@ -133,7 +150,6 @@ public class UserServiceImpl implements UserService {
         //去掉‘Bearer’
         token = token.substring(7);
         String username;
-
         try {
             username = jwtUtil.getUsernameFromToken(token);
         } catch (Exception e) {
@@ -154,20 +170,20 @@ public class UserServiceImpl implements UserService {
         return Result.success("获取用户列表成功",userListResponse);
     }
 
-    //退出登录
+    //更新账号状态(管理员)
     @Override
-    public LogoutResponse logout(LogoutRequest logoutRequest, HttpServletRequest httpRequest) {
-        LogoutResponse response = new LogoutResponse();
+    public Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest) {
 
-        String authHeader = httpRequest.getHeader("Authorization");
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            TokenBlacklist.add(token);
-            response.setMessage("退出成功");
-        } else {
-            response.setMessage("未提供token， 退出失败");
+        String token = httpRequest.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return Result.error("未授权访问,请先登录");
         }
-        return response;
+        System.out.println(request.getUserId());
+        if(userMapper.updateUserStatus(request.getUserId(), request.getStatus()) > 0) {
+            return Result.success("用户状态更新成功");
+        } else {
+            return Result.error("用户状态更新失败");
+        }
     }
 
     //设置用户注册

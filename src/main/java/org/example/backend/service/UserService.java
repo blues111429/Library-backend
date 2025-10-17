@@ -13,16 +13,14 @@ public interface UserService {
     Result<LoginResponse> login(LoginRequest request);
     //注册
     Result<RegisterResponse> register(RegisterRequest request);
-
     //删除用户
     DeleteResponse delete(DeleteRequest request);
-
     //用户信息
     UserInfoResponse userInfo(HttpServletRequest httpRequest);
-
     //获取用户列表
     Result<List<UserListResponse>> userList(HttpServletRequest httpRequest);
-
+    //更新账号状态
+    Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest);
     //退出登录
     LogoutResponse logout(LogoutRequest request, HttpServletRequest httpRequest);
 }

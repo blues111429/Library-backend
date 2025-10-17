@@ -2,8 +2,8 @@ package org.example.backend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.user.*;
-import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.user.*;
+import org.example.backend.dto.response.Result;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,13 +32,17 @@ public class UserController {
     @PostMapping("/delete")
     public DeleteResponse delete(@RequestBody DeleteRequest request){ return userService.delete(request); }
 
-    //用户信息
+    //用户查看个人信息
     @GetMapping("/userInfo")
     public UserInfoResponse userInfo(HttpServletRequest httpRequest){ return userService.userInfo(httpRequest); }
 
-    //用户列表
+    //用户列表(管理员)
     @GetMapping("/userList")
     public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest){ return userService.userList(httpRequest); }
+
+    //更新用户账号状态(管理员)
+    @PostMapping("/updateUserStatus")
+    public Result<String> updateUserStatus(@RequestBody UpdateUserStatusRequest request, HttpServletRequest httpRequest) {return userService.updateStatus(request, httpRequest);}
 
     //退出登录
     @PostMapping("/logout")
