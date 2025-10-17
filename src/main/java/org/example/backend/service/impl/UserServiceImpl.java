@@ -2,6 +2,7 @@ package org.example.backend.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.user.*;
+import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
@@ -25,67 +26,57 @@ public class UserServiceImpl implements UserService {
 
     //登录
     @Override
-    public LoginResponse login(LoginRequest request) {
-        LoginResponse response = new LoginResponse();
-
+    public Result<LoginResponse> login(LoginRequest request) {
         User user = userMapper.findByUsername(request.getUsername());
-        System.out.println("当前用户:"+user);
-        if( user == null ) {
-            response.setMessage("用户名不存在");
-            return response;
-        }
+
+        if( user == null ) { return Result.error("用户名不存在"); }
 
         boolean match = PasswordUtil.matches(request.getPassword(), user.getPassword_hash());
-        if(!match) {
-            response.setMessage("密码错误");
-            return response;
-        }
+        if(!match) { return Result.error("密码错误"); }
 
+        //更新登录时间
         userMapper.updateLastLogin(user.getUser_id());
+        //生成token
         String token = jwtUtil.generateToken(user.getUsername());
 
-        response.setMessage("登录成功");
+        LoginResponse response = new LoginResponse();
         response.setUserId(user.getUser_id());
         response.setUsername(user.getUsername());
         response.setTypeCn(user.getType_cn());
         response.setToken(token);
-        return response;
+        return Result.success("登录成功", response);
     }
 
     //注册
     @Override
-    public RegisterResponse register(RegisterRequest request) {
-        RegisterResponse response = new RegisterResponse();
+    public Result<RegisterResponse> register(RegisterRequest request) {
 
+        //用户名重复校验
         User existing = userMapper.findByOnlyUsername(request.getUsername());
         if (existing != null) {
-            response.setMessage("用户名已存在");
-            return response;
+            return Result.error("用户名已存在");
         }
-
-        String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword_hash(encryptedPassword);
-        user.setName(request.getName());
-        user.setGender(request.getGender());
-        user.setType(request.getType());
-        user.setType_cn(request.getType());
-        user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
-        user.setStatus(1);
-
-        if(userMapper.insert(user) <= 0) {
-            response.setMessage("注册失败");
-            return response;
+        //手机号校验
+        if (request.getPhone() == null || !request.getPhone().matches("^1[3-9]\\d{9}$")) {
+            return Result.error("手机号格式不正确");
         }
+        //邮箱校验
+        if(request.getEmail()==null || !request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            return Result.error("邮箱格式不对");
+        }
+        //密码校验
 
+        RegisterResponse response = new RegisterResponse();
+        User user = userRegister(request);
+
+        if(userMapper.insert(user) <= 0) {return Result.error("注册失败");}
+        //为新用户生成token
         String token =  jwtUtil.generateToken(user.getUsername());
 
         response.setMessage("注册成功");
         response.setUserId(user.getUser_id());
         response.setToken(token);
-        return response;
+        return Result.success("注册成功", response);
     }
 
     //删除用户
@@ -115,6 +106,7 @@ public class UserServiceImpl implements UserService {
         String username = jwtUtil.getUsernameFromToken(token);
         User user = userMapper.findByUsername(username);
         UserInfoResponse response = new UserInfoResponse();
+
         if( user == null ) {
             response.setMessage("没有找到该用户");
             return response;
@@ -132,19 +124,26 @@ public class UserServiceImpl implements UserService {
 
     //获取用户列表
     @Override
-    public List<UserListResponse> userList(HttpServletRequest httpRequest) {
-
+    public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest) {
         String token = httpRequest.getHeader("Authorization");
+        //未登录
         if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("未授权访问");
+            return Result.error("未授权访问,请先登录");
         }
-
+        //去掉‘Bearer’
         token = token.substring(7);
-        String username = jwtUtil.getUsernameFromToken(token);
-        User currentUser = userMapper.findByUsername(username);
-        if(currentUser == null || !"管理员".equals(currentUser.getType_cn())) {
-            throw new RuntimeException("权限不足，仅管理员可以访问");
+        String username;
+
+        try {
+            username = jwtUtil.getUsernameFromToken(token);
+        } catch (Exception e) {
+            return Result.error("Token已无效或已过期,请重新登陆");
         }
+        //查找当前用户
+        User currentUser = userMapper.findByUsername(username);
+        if(currentUser == null) { return Result.error("当前用户不存在"); }
+
+        if(!"管理员".equals(currentUser.getType_cn())) { throw new RuntimeException("权限不足，仅管理员可以访问"); }
 
         List<User> users = userMapper.userList();
         List<UserListResponse> userListResponse = new ArrayList<>();
@@ -152,23 +151,7 @@ public class UserServiceImpl implements UserService {
             UserListResponse response = getUserListResponse(user);
             userListResponse.add(response);
         }
-        return userListResponse;
-    }
-
-    //设置返回的response
-    private static UserListResponse getUserListResponse(User user) {
-        UserListResponse response = new UserListResponse();
-        response.setUser_id(user.getUser_id());
-        response.setUsername(user.getUsername());
-        response.setName(user.getName());
-        response.setGender(user.getGender());
-        response.setTypeCn(user.getType_cn());
-        response.setPhone(user.getPhone());
-        response.setEmail(user.getEmail());
-        response.setStatus(user.getStatus());
-        response.setCreate_time(user.getCreate_time());
-        response.setLast_login(user.getLast_login());
-        return response;
+        return Result.success("获取用户列表成功",userListResponse);
     }
 
     //退出登录
@@ -184,6 +167,40 @@ public class UserServiceImpl implements UserService {
         } else {
             response.setMessage("未提供token， 退出失败");
         }
+        return response;
+    }
+
+    //设置用户注册
+    private static User userRegister(RegisterRequest request) {
+        //密码加密
+        String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
+        //创建新用户
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword_hash(encryptedPassword);
+        user.setName(request.getName());
+        user.setGender(request.getGender());
+        user.setType(request.getType());
+        user.setType_cn(request.getType());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setStatus(1);
+        return user;
+    }
+
+    //设置获取用户列表返回的response
+    private static UserListResponse getUserListResponse(User user) {
+        UserListResponse response = new UserListResponse();
+        response.setUser_id(user.getUser_id());
+        response.setUsername(user.getUsername());
+        response.setName(user.getName());
+        response.setGender(user.getGender());
+        response.setTypeCn(user.getType_cn());
+        response.setPhone(user.getPhone());
+        response.setEmail(user.getEmail());
+        response.setStatus(user.getStatus());
+        response.setCreate_time(user.getCreate_time());
+        response.setLast_login(user.getLast_login());
         return response;
     }
 }

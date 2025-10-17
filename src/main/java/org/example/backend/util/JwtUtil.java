@@ -1,9 +1,7 @@
 package org.example.backend.util;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +15,7 @@ public class JwtUtil {
 
     //生成token
     public String generateToken(String username) {
-        long EXPIRATION_TIME = 1000 * 24 * 60 * 60;
+        long EXPIRATION_TIME = 1000 * 24 * 60 * 60; //token有效期为一天
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
