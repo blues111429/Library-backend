@@ -17,4 +17,5 @@ public class UserListResponse {
     private Integer status;
     private LocalDateTime create_time;
     private LocalDateTime last_login;
+    private LocalDateTime status_update_time;
 }

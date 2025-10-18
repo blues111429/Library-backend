@@ -18,17 +18,17 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     //mapper注入(构造方法)
-    private final UserMapper userMapper;
-    private final JwtUtil jwtUtil;
+    private static UserMapper userMapper = null;
+    private static JwtUtil jwtUtil = null;
     public UserServiceImpl (UserMapper userMapper,  JwtUtil jwtUtil) {
-        this.userMapper = userMapper;
-        this.jwtUtil = jwtUtil;
+        UserServiceImpl.userMapper = userMapper;
+        UserServiceImpl.jwtUtil = jwtUtil;
     }
 
     //登录
     @Override
     public Result<LoginResponse> login(LoginRequest request) {
-        User user = userMapper.findByUsername(request.getUsername());
+        User user = userMapper.findByUsername(request.getPhone());
 
         if( user == null ) { return Result.error("用户名不存在"); }
 
@@ -51,24 +51,12 @@ public class UserServiceImpl implements UserService {
         return Result.success("登录成功", response);
     }
 
-    //注册
+    //用户注册
     @Override
     public Result<RegisterResponse> register(RegisterRequest request) {
-
-        //用户名重复校验
-        User existing = userMapper.findByOnlyUsername(request.getUsername());
-        if (existing != null) {
-            return Result.error("用户名已存在");
-        }
-        //手机号校验
-        if (request.getPhone() == null || !request.getPhone().matches("^1[3-9]\\d{9}$")) {
-            return Result.error("手机号格式不正确");
-        }
-        //邮箱校验
-        if(request.getEmail()==null || !request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            return Result.error("邮箱格式不对");
-        }
-        //密码校验
+        //注册数据校验
+        String message = registerCheck(request);
+        if(!message.isEmpty()) { return Result.error(message); }
 
         RegisterResponse response = new RegisterResponse();
         User user = userRegister(request);
@@ -81,6 +69,23 @@ public class UserServiceImpl implements UserService {
         response.setUserId(user.getUser_id());
         response.setToken(token);
         return Result.success("注册成功", response);
+    }
+
+    //新增用户(管理员）
+    @Override
+    public Result<String> addUser(RegisterRequest request, HttpServletRequest httpServlet) {
+        //管理员身份校验
+        String adminMessage = adminCheck(httpServlet);
+        if(!adminMessage.isEmpty()) { return Result.error(adminMessage); }
+        //注册数据校验
+        String registerMessage = registerCheck(request);
+        if(!registerMessage.isEmpty()) { return Result.error(registerMessage); }
+
+        User user = userRegister(request);
+
+        if(userMapper.insert(user) <= 0) { return Result.error("新增失败"); }
+        System.out.println("✅ 数据插入成功");
+        return Result.success("新增成功");
     }
 
     //删除用户
@@ -101,10 +106,9 @@ public class UserServiceImpl implements UserService {
     //获取用户信息
     @Override
     public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest) {
+        //登录校验
         String message = tokenCheck(httpRequest);
-        if(!message.isEmpty()) {
-            return Result.error(message);
-        }
+        if(!message.isEmpty()) { return Result.error(message); }
 
         String token  = httpRequest.getHeader("Authorization");
         token = token.substring(7);
@@ -138,24 +142,9 @@ public class UserServiceImpl implements UserService {
     //获取用户列表(管理员)
     @Override
     public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest) {
-        String token = httpRequest.getHeader("Authorization");
-        //未登录
-        if (token == null || !token.startsWith("Bearer ")) {
-            return Result.error("未授权访问,请先登录");
-        }
-        //去掉‘Bearer’
-        token = token.substring(7);
-        String username;
-        try {
-            username = jwtUtil.getUsernameFromToken(token);
-        } catch (Exception e) {
-            return Result.error("Token已无效或已过期,请重新登陆");
-        }
-        //查找当前用户
-        User currentUser = userMapper.findByUsername(username);
-        if(currentUser == null) { return Result.error("当前用户不存在"); }
-
-        if(!"管理员".equals(currentUser.getType_cn())) { throw new RuntimeException("权限不足，仅管理员可以访问"); }
+        //管理员身份校验
+        String message = adminCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
 
         List<User> users = userMapper.userList();
         List<UserListResponse> userListResponse = new ArrayList<>();
@@ -169,17 +158,14 @@ public class UserServiceImpl implements UserService {
     //更新账号状态(管理员)
     @Override
     public Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest) {
-
-        String token = httpRequest.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            return Result.error("未授权访问,请先登录");
-        }
+        //管理员身份校验
+        String message = adminCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
 
         int userId = request.getUserId();
         int newStatus = request.getStatus();
 
         if(userMapper.updateUserStatus(request.getUserId(), request.getStatus()) > 0) {
-
             if(newStatus <= 0) {
                 String userToken = TokenStore.get(userId);
                 if(userToken != null) {
@@ -203,13 +189,56 @@ public class UserServiceImpl implements UserService {
         return message;
     }
 
+    //管理员身份校验
+    private static String adminCheck(HttpServletRequest httpRequest) {
+        String token = httpRequest.getHeader("Authorization");
+        //未登录
+        if (token == null || !token.startsWith("Bearer ")) {
+            return "未授权访问,请先登录";
+        }
+        //去掉‘Bearer’
+        token = token.substring(7);
+        String username;
+        try {
+            username = jwtUtil.getUsernameFromToken(token);
+        } catch (Exception e) {
+            return "Token已无效或已过期,请重新登陆";
+        }
+        //查找当前用户
+        User currentUser = userMapper.findByUsername(username);
+        System.out.println("当前用户：" + currentUser);
+        if(currentUser == null) { return "当前用户不存在"; }
+
+        if(!"管理员".equals(currentUser.getType_cn())) { return "权限不足，仅管理员可以访问"; }
+
+        return "";
+    }
+
+    //注册数据校验
+    private static String registerCheck(RegisterRequest request) {
+        //用户名重复校验
+        User existing = userMapper.findByOnlyUsername(request.getPhone());
+        if (existing != null) {
+            return "用户名已存在";
+        }
+        //手机号校验
+        if (request.getPhone() == null || !request.getPhone().matches("^1[3-9]\\d{9}$")) {
+            return "手机号格式不正确";
+        }
+        //邮箱校验
+        if(request.getEmail()==null || !request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            return "邮箱格式不对";
+        }
+        return "";
+    }
+
     //设置用户注册
     private static User userRegister(RegisterRequest request) {
         //密码加密
         String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
         //创建新用户
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(request.getPhone());
         user.setPassword_hash(encryptedPassword);
         user.setName(request.getName());
         user.setGender(request.getGender());
@@ -218,6 +247,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
         user.setStatus(1);
+        System.out.println("注册用户信息"+user);
         return user;
     }
 
@@ -234,6 +264,7 @@ public class UserServiceImpl implements UserService {
         response.setStatus(user.getStatus());
         response.setCreate_time(user.getCreate_time());
         response.setLast_login(user.getLast_login());
+        response.setStatus_update_time(user.getStatus_update_time());
         return response;
     }
 }

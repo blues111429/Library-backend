@@ -20,13 +20,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    //登录
+    //用户登录
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody LoginRequest request) { return userService.login(request); }
 
-    //注册
+    //用户注册
     @PostMapping("/register")
     public Result<RegisterResponse> register(@RequestBody RegisterRequest request){ return userService.register(request);}
+
+    //新增用户(管理员)
+    @PostMapping("/addUser")
+    public Result<String> addUser(@RequestBody RegisterRequest request, HttpServletRequest httpServlet) { return userService.addUser(request,httpServlet); }
 
     //删除
     @PostMapping("/delete")
