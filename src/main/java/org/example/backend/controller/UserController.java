@@ -7,7 +7,6 @@ import org.example.backend.dto.response.Result;
 import org.example.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -28,10 +27,6 @@ public class UserController {
     @PostMapping("/register")
     public Result<RegisterResponse> register(@RequestBody RegisterRequest request){ return userService.register(request);}
 
-    //新增用户(管理员)
-    @PostMapping("/addUser")
-    public Result<String> addUser(@RequestBody RegisterRequest request, HttpServletRequest httpServlet) { return userService.addUser(request,httpServlet); }
-
     //删除
     @PostMapping("/deleteUser")
     public Result<String> delete(@RequestBody DeleteRequest request){ return userService.deleteUser(request); }
@@ -39,14 +34,6 @@ public class UserController {
     //用户查看个人信息
     @GetMapping("/userInfo")
     public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest){ return userService.userInfo(httpRequest); }
-
-    //用户列表(管理员)
-    @GetMapping("/userList")
-    public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest){ return userService.userList(httpRequest); }
-
-    //更新用户账号状态(管理员)
-    @PostMapping("/updateUserStatus")
-    public Result<String> updateUserStatus(@RequestBody UpdateUserStatusRequest request, HttpServletRequest httpRequest) {return userService.updateStatus(request, httpRequest);}
 
     //退出登录
     @PostMapping("/logout")

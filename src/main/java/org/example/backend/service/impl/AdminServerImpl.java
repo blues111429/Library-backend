@@ -1,0 +1,80 @@
+package org.example.backend.service.impl;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.RegisterRequest;
+import org.example.backend.dto.request.user.UpdateUserStatusRequest;
+import org.example.backend.dto.response.Result;
+import org.example.backend.dto.response.user.UserListResponse;
+import org.example.backend.mapper.UserMapper;
+import org.example.backend.model.User;
+import org.example.backend.service.AdminServer;
+import org.example.backend.util.*;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Service
+public class AdminServerImpl implements AdminServer {
+    //mapper注入(构造方法)
+    private static UserMapper userMapper;
+    public AdminServerImpl (UserMapper userMapper) {
+        AdminServerImpl.userMapper = userMapper;
+    }
+
+    //新增用户
+    @Override
+    public Result<String> addUser(RegisterRequest request, HttpServletRequest httpServlet) {
+        //管理员身份校验
+        String adminMessage = UserTools.adminCheck(httpServlet);
+        if(!adminMessage.isEmpty()) { return Result.error(adminMessage); }
+        //注册数据校验
+        String registerMessage = UserTools.registerCheck(request);
+        if(!registerMessage.isEmpty()) { return Result.error(registerMessage); }
+
+        User user = UserTools.userRegister(request);
+
+        if(userMapper.insert(user) <= 0) { return Result.error("新增失败"); }
+        System.out.println("✅ 数据插入成功");
+        return Result.success("新增成功");
+    }
+    //获取用户列表
+    @Override
+    public Result<List<UserListResponse>> userList(HttpServletRequest httpRequest) {
+        //管理员身份校验
+        String message = UserTools.adminCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+
+        List<User> users = userMapper.userList();
+        List<UserListResponse> userListResponse = new ArrayList<>();
+        for(User user : users) {
+            UserListResponse response = UserTools.getUserListResponse(user);
+            userListResponse.add(response);
+        }
+        return Result.success("获取用户列表成功",userListResponse);
+    }
+    //更新账号状态
+    @Override
+    public Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest) {
+        //管理员身份校验
+        String message = UserTools.adminCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+
+        int userId = request.getUserId();
+        int newStatus = request.getStatus();
+
+        if(userMapper.updateUserStatus(request.getUserId(), request.getStatus()) > 0) {
+            if(newStatus <= 0) {
+                String userToken = TokenStore.get(userId);
+                if(userToken != null) {
+                    TokenBlacklist.add(userToken);
+                    TokenStore.remove(userId);
+                }
+            }
+            return Result.success("用户状态更新成功");
+        } else {
+            return Result.error("用户状态更新失败");
+        }
+    }
+}
