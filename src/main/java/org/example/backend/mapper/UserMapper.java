@@ -7,7 +7,7 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
     //获取用户列表
-    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user`")
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE status >=0")
     List<User> userList();
 
     //根据用户名查找用户
@@ -30,7 +30,7 @@ public interface UserMapper {
     int insert(User user);
 
     //删除用户
-    @Delete("update `user` SET status = 0 WHERE user_id = #{userId}")
+    @Delete("update `user` SET status = -1 WHERE user_id = #{userId}")
     int delete(@Param("userId") int userId);
 
     //更新账号状态

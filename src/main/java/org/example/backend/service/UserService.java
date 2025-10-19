@@ -16,7 +16,7 @@ public interface UserService {
     //新增用户
     Result<String> addUser(RegisterRequest request, HttpServletRequest httpServlet);
     //删除用户
-    DeleteResponse delete(DeleteRequest request);
+    Result<String> deleteUser(DeleteRequest request);
     //用户信息
     Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest);
     //获取用户列表

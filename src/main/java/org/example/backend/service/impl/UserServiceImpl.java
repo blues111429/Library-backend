@@ -90,17 +90,15 @@ public class UserServiceImpl implements UserService {
 
     //删除用户
     @Override
-    public DeleteResponse delete(DeleteRequest request) {
+    public Result<String> deleteUser(DeleteRequest request) {
 
         Integer userId = request.getUserId();
         int result = userMapper.delete(userId);
-        DeleteResponse response = new DeleteResponse();
         if(result <= 0) {
-            response.setMessage("未找到该用户");
-        } else {
-            response.setMessage("删除成功");
+            return Result.error("未找到该用户");
         }
-        return response;
+
+        return Result.success("删除成功");
     }
 
     //获取用户信息

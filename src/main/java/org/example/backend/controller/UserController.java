@@ -33,8 +33,8 @@ public class UserController {
     public Result<String> addUser(@RequestBody RegisterRequest request, HttpServletRequest httpServlet) { return userService.addUser(request,httpServlet); }
 
     //删除
-    @PostMapping("/delete")
-    public DeleteResponse delete(@RequestBody DeleteRequest request){ return userService.delete(request); }
+    @PostMapping("/deleteUser")
+    public Result<String> delete(@RequestBody DeleteRequest request){ return userService.deleteUser(request); }
 
     //用户查看个人信息
     @GetMapping("/userInfo")
