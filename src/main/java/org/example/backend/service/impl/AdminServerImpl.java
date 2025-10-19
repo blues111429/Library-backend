@@ -5,6 +5,7 @@ import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.request.user.UpdateUserStatusRequest;
 import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.user.UserListResponse;
+import org.example.backend.mapper.AdminMapper;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.example.backend.service.AdminServer;
@@ -19,15 +20,18 @@ import java.util.List;
 public class AdminServerImpl implements AdminServer {
     //mapper注入(构造方法)
     private static UserMapper userMapper;
-    public AdminServerImpl (UserMapper userMapper) {
+    private static AdminMapper adminMapper;
+
+    public AdminServerImpl (UserMapper userMapper, AdminMapper adminMapper) {
         AdminServerImpl.userMapper = userMapper;
+        AdminServerImpl.adminMapper = adminMapper;
     }
 
     //新增用户
     @Override
-    public Result<String> addUser(RegisterRequest request, HttpServletRequest httpServlet) {
+    public Result<String> addUser(RegisterRequest request, HttpServletRequest httpRequest) {
         //管理员身份校验
-        String adminMessage = UserTools.adminCheck(httpServlet);
+        String adminMessage = UserTools.adminCheck(httpRequest);
         if(!adminMessage.isEmpty()) { return Result.error(adminMessage); }
         //注册数据校验
         String registerMessage = UserTools.registerCheck(request);
@@ -36,7 +40,10 @@ public class AdminServerImpl implements AdminServer {
         User user = UserTools.userRegister(request);
 
         if(userMapper.insert(user) <= 0) { return Result.error("新增失败"); }
-        System.out.println("✅ 数据插入成功");
+
+        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
+        adminMapper.insertLog(adminId, "新增用户:" + request.getPhone());
+
         return Result.success("新增成功");
     }
     //获取用户列表
@@ -52,6 +59,10 @@ public class AdminServerImpl implements AdminServer {
             UserListResponse response = UserTools.getUserListResponse(user);
             userListResponse.add(response);
         }
+
+        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
+        adminMapper.insertLog(adminId, "获取用户列表");
+
         return Result.success("获取用户列表成功",userListResponse);
     }
     //更新账号状态
@@ -72,6 +83,11 @@ public class AdminServerImpl implements AdminServer {
                     TokenStore.remove(userId);
                 }
             }
+
+            Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
+            String action = (newStatus == 1 ? "启用" : "禁用") + "用户:" + userId;
+            adminMapper.insertLog(adminId, action);
+
             return Result.success("用户状态更新成功");
         } else {
             return Result.error("用户状态更新失败");

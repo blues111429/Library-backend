@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public interface AdminServer {
     //新增用户
-    Result<String> addUser(RegisterRequest request, HttpServletRequest httpServlet);
+    Result<String> addUser(RegisterRequest request, HttpServletRequest httpRequest);
     //获取用户列表
     Result<List<UserListResponse>> userList(HttpServletRequest httpRequest);
     //更新账号状态

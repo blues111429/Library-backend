@@ -17,6 +17,7 @@ public class UserTools {
         UserTools.jwtUtil = jwtUtil;
     }
 
+    //校验
     //未登录检验
     public static String tokenCheck(HttpServletRequest httpRequest) {
         String token = httpRequest.getHeader("Authorization");
@@ -67,6 +68,30 @@ public class UserTools {
         }
         return "";
     }
+
+    //获取信息
+    //从请求中获取用户ID
+    public static Integer getUserIdFromRequest(HttpServletRequest httpRequest) {
+        String token = httpRequest.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("缺少token");
+        }
+
+        token = token.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            throw new RuntimeException("无效token");
+        }
+
+        String username = jwtUtil.getUsernameFromToken(token);
+        User user = userMapper.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        return user.getUser_id();
+    }
+
+    //配置
     //设置用户注册
     public static User userRegister(RegisterRequest request) {
         //密码加密
