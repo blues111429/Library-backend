@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
         if( user == null ) { return Result.error("用户名不存在"); }
 
-        if(userMapper.userStatus(user.getUsername()) <= 0) {return Result.error("该用户已被冻结，请联系管理员");}
+        if(userMapper.userStatus(user.getUsername()) <= 0) {return Result.error("该用户已被冻结或被删除，请联系管理员");}
 
         boolean match = PasswordUtil.matches(request.getPassword(), user.getPassword_hash());
         if(!match) { return Result.error("密码错误"); }

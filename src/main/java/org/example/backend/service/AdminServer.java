@@ -1,6 +1,7 @@
 package org.example.backend.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.request.user.UpdateUserStatusRequest;
 import org.example.backend.dto.response.Result;
@@ -17,4 +18,6 @@ public interface AdminServer {
     Result<List<UserListResponse>> userList(HttpServletRequest httpRequest);
     //更新账号状态
     Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest);
+    //编辑用户信息
+    Result<String> editUser(EditUserRequest request, HttpServletRequest httpRequest);
 }

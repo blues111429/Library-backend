@@ -1,6 +1,7 @@
 package org.example.backend.util;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.response.user.UserListResponse;
 import org.example.backend.mapper.UserMapper;
@@ -92,6 +93,19 @@ public class UserTools {
     }
 
     //配置
+    //新建用户，并编辑设置其字段的值
+    public static User newUser(EditUserRequest request) {
+        User user = new User();
+        user.setUser_id(request.getUser_id());
+        user.setUsername(request.getPhone());
+        user.setPhone(request.getPhone());
+        user.setName(request.getName());
+        user.setGender(request.getGender());
+        user.setType(request.getType());
+        user.setType_cn(request.getType());
+        user.setEmail(request.getEmail());
+        return user;
+    }
     //设置用户注册
     public static User userRegister(RegisterRequest request) {
         //密码加密
@@ -117,6 +131,7 @@ public class UserTools {
         response.setUsername(user.getUsername());
         response.setName(user.getName());
         response.setGender(user.getGender());
+        response.setType(user.getType());
         response.setTypeCn(user.getType_cn());
         response.setPhone(user.getPhone());
         response.setEmail(user.getEmail());

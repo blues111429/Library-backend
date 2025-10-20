@@ -1,6 +1,7 @@
 package org.example.backend.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.request.user.UpdateUserStatusRequest;
 import org.example.backend.dto.response.Result;
@@ -54,6 +55,7 @@ public class AdminServerImpl implements AdminServer {
         if(!message.isEmpty()) { return Result.error(message); }
 
         List<User> users = userMapper.userList();
+        System.out.println(users);
         List<UserListResponse> userListResponse = new ArrayList<>();
         for(User user : users) {
             UserListResponse response = UserTools.getUserListResponse(user);
@@ -85,12 +87,25 @@ public class AdminServerImpl implements AdminServer {
             }
 
             Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
-            String action = (newStatus == 1 ? "启用" : "禁用") + "用户:" + userId;
+            String action = (newStatus == 1 ? "启用" : "禁用") + "用户(用户ID):" + userId;
             adminMapper.insertLog(adminId, action);
 
             return Result.success("用户状态更新成功");
         } else {
             return Result.error("用户状态更新失败");
         }
+    }
+
+    //编辑用户
+    @Override
+    public Result<String> editUser(EditUserRequest request, HttpServletRequest httpRequest) {
+        String message = UserTools.adminCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+
+        User user = UserTools.newUser(request);
+        System.out.println("当前被编辑用户:"+user);
+//        userMapper.editUser(user);
+
+        return Result.success("编辑成功");
     }
 }

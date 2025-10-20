@@ -37,6 +37,9 @@ public interface UserMapper {
     @Update("UPDATE `user` SET status = #{status}, status_update_time = NOW() WHERE user_id = #{userId}")
     int updateUserStatus(@Param("userId") int userId, @Param("status") Integer status);
 
+    //编辑用户信息
+//    @Update("UPDATE `user` SET username = #{username}, ")
+
     //更新登录时间
     @Update("UPDATE `user` SET last_login = NOW() WHERE user_id = #{userId}")
     void updateLastLogin(@Param("userId") int userId);

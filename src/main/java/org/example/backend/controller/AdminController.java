@@ -1,6 +1,7 @@
 package org.example.backend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.request.user.UpdateUserStatusRequest;
 import org.example.backend.dto.response.Result;
@@ -22,7 +23,10 @@ public class AdminController {
     //获取用户列表
     @GetMapping("/userList")
     public Result<List<UserListResponse>> userList(HttpServletRequest httpServlet) { return adminServer.userList(httpServlet); }
-    //更新用户账号状态(管理员)
+    //更新用户账号状态
     @PostMapping("/updateUserStatus")
     public Result<String> updateUserStatus(@RequestBody UpdateUserStatusRequest request, HttpServletRequest httpRequest) {return adminServer.updateStatus(request, httpRequest);}
+    //编辑用户信息
+    @PostMapping("/editUser")
+    public Result<String> editUser(@RequestBody EditUserRequest request, HttpServletRequest httpRequest) { return adminServer.editUser(request, httpRequest); }
 }
