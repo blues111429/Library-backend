@@ -38,6 +38,7 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtil.generateToken(user.getUsername());
 
         LoginResponse response = LoginResponse.builder()
+                                .name(user.getName())
                                 .userId(user.getUser_id())
                                 .username(user.getUsername())
                                 .typeCn(user.getType_cn())
@@ -103,12 +104,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result<LogoutResponse> logout(HttpServletRequest httpRequest) {
         String authHeader = httpRequest.getHeader("Authorization");
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return Result.error("未提供token,退出失败");
-        }
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) { return Result.error("未提供token,退出失败"); }
         String token = authHeader.substring(7);
         TokenBlacklist.add(token);
-        return Result.success("退出成功");
+        return Result.success("退出成功,正在跳转...");
     }
 
 }

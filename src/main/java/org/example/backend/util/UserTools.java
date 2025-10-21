@@ -57,7 +57,7 @@ public class UserTools {
         //用户名重复校验
         User existing = userMapper.findByOnlyUsername(request.getPhone());
         if (existing != null) {
-            return "用户名已存在";
+            return "该手机号已被注册";
         }
         //手机号校验
         if (request.getPhone() == null || !request.getPhone().matches("^1[3-9]\\d{9}$")) {
