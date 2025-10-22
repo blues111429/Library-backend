@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.backend.mapper.UserMapper">
+    <!--  编辑用户信息(管理员)  -->
+    <update id="editUser" parameterType="org.example.backend.dto.request.user.EditUserRequest">
+        UPDATE `user`
+        <set>
+            <if test="phone != null and phone !=''">
+                username = #{phone},
+                phone = #{phone},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+        </set>
+        WHERE user_id = #{user_id}
+    </update>
+    <!--  修改用户信息(用户)  -->
+    <update id="updateUserInfo" parameterType="org.example.backend.dto.request.user.UpdateUserInfoRequest">
+        UPDATE `user`
+        <set>
+            <if test="phone != null and phone != ''">
+                username = #{phone},
+                phone = #{phone},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+        </set>
+        WHERE user_id = #{user_id}
+    </update>
+</mapper>

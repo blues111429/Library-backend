@@ -31,6 +31,12 @@ public class UserController {
     @PostMapping("/deleteUser")
     public Result<String> delete(@RequestBody DeleteRequest request){ return userService.deleteUser(request); }
 
+    //修改信息
+    @PostMapping("/updateUserInfo")
+    public Result<String> updateUserInfo(@RequestBody UpdateUserInfoRequest request, HttpServletRequest servletRequest) {
+        return userService.updateUserInfo(request, servletRequest);
+    }
+
     //用户查看个人信息
     @GetMapping("/userInfo")
     public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest){ return userService.userInfo(httpRequest); }

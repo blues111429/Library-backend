@@ -1,6 +1,8 @@
 package org.example.backend.mapper;
 
 import org.apache.ibatis.annotations.*;
+import org.example.backend.dto.request.user.EditUserRequest;
+import org.example.backend.dto.request.user.UpdateUserInfoRequest;
 import org.example.backend.model.User;
 import java.util.List;
 
@@ -10,6 +12,10 @@ public interface UserMapper {
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE status >=0")
     List<User> userList();
 
+    //根据用户Id获取用户
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE user_id = #{userId}")
+    User findUserById(@Param("userId") int userId);
+
     //根据用户名查找用户
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` Where username  = #{username } LIMIT 1")
     User findByUsername(@Param("username") String username );
@@ -18,12 +24,11 @@ public interface UserMapper {
     @Select("Select status FROM `user` WHERE phone = #{phone}")
     Integer userStatus(@Param("phone") String phone);
 
-
     //用户名唯一性查询
     @Select("SELECT * FROM `user` WHERE username = #{username}")
     User findByOnlyUsername(@Param("username") String username);
 
-    //插入用户
+    //插入用户(用户、管理员)
     @Insert("INSERT INTO `user` (username, password_hash, name, gender, type, phone, email, status, create_time)" +
             "VALUES (#{username}, #{password_hash}, #{name}, #{gender}, #{type}, #{phone}, #{email}, #{status}, NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "user_id")
@@ -37,8 +42,11 @@ public interface UserMapper {
     @Update("UPDATE `user` SET status = #{status}, status_update_time = NOW() WHERE user_id = #{userId}")
     int updateUserStatus(@Param("userId") int userId, @Param("status") Integer status);
 
-    //编辑用户信息
-//    @Update("UPDATE `user` SET username = #{username}, ")
+    //编辑用户
+    int editUser(EditUserRequest request);
+
+    //修改信息
+    int updateUserInfo(UpdateUserInfoRequest request);
 
     //更新登录时间
     @Update("UPDATE `user` SET last_login = NOW() WHERE user_id = #{userId}")

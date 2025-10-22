@@ -55,7 +55,6 @@ public class AdminServerImpl implements AdminServer {
         if(!message.isEmpty()) { return Result.error(message); }
 
         List<User> users = userMapper.userList();
-        System.out.println(users);
         List<UserListResponse> userListResponse = new ArrayList<>();
         for(User user : users) {
             UserListResponse response = UserTools.getUserListResponse(user);
@@ -102,9 +101,20 @@ public class AdminServerImpl implements AdminServer {
         String message = UserTools.adminCheck(httpRequest);
         if(!message.isEmpty()) { return Result.error(message); }
 
+        User oldUser = userMapper.findUserById(request.getUser_id());
+        System.out.println("修改前用户:" + oldUser);
+        if(oldUser == null) {return Result.error("该用户不存在");}
+        if(request.getPhone() !=  null && !request.getPhone().equals(oldUser.getPhone())) {
+            if(userMapper.findByOnlyUsername(request.getPhone()) != null) {
+                return Result.error("该手机号已被使用");
+            }
+        }
         User user = UserTools.newUser(request);
         System.out.println("当前被编辑用户:"+user);
-//        userMapper.editUser(user);
+
+        if(userMapper.editUser(request) <= 0) {
+            return Result.error("编辑失败");
+        }
 
         return Result.success("编辑成功");
     }

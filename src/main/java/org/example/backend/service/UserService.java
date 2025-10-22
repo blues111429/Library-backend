@@ -16,6 +16,8 @@ public interface UserService {
     Result<String> deleteUser(DeleteRequest request);
     //用户信息
     Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest);
+    //修改用户信息
+    Result<String> updateUserInfo(UpdateUserInfoRequest request, HttpServletRequest httpRequest);
     //退出登录
     Result<LogoutResponse> logout(HttpServletRequest httpRequest);
 }

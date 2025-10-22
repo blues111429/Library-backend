@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByUsername(username);
         if( user == null ) { return Result.error("没有找到该用户"); }
         UserInfoResponse response = UserInfoResponse.builder()
+                                    .user_id(user.getUser_id())
                                     .username(user.getUsername())
                                     .name(user.getName())
                                     .typeCn(user.getType_cn())
@@ -100,6 +101,22 @@ public class UserServiceImpl implements UserService {
                                     .build();
         return Result.success("获取成功", response);
     }
+
+    @Override
+    public Result<String> updateUserInfo(UpdateUserInfoRequest request, HttpServletRequest httpRequest) {
+        //登录校验
+        String message = UserTools.tokenCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+
+        System.out.println(request.getUser_id());
+
+        if(userMapper.updateUserInfo(request) <= 0) {
+            return Result.error("修改失败");
+        }
+
+        return Result.success("修改成功");
+    }
+
     //退出登录
     @Override
     public Result<LogoutResponse> logout(HttpServletRequest httpRequest) {
