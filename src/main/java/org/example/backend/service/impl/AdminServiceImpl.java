@@ -9,7 +9,7 @@ import org.example.backend.dto.response.user.UserListResponse;
 import org.example.backend.mapper.AdminMapper;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
-import org.example.backend.service.AdminServer;
+import org.example.backend.service.AdminService;
 import org.example.backend.util.*;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +18,14 @@ import java.util.List;
 
 
 @Service
-public class AdminServerImpl implements AdminServer {
+public class AdminServiceImpl implements AdminService {
     //mapper注入(构造方法)
     private static UserMapper userMapper;
     private static AdminMapper adminMapper;
 
-    public AdminServerImpl (UserMapper userMapper, AdminMapper adminMapper) {
-        AdminServerImpl.userMapper = userMapper;
-        AdminServerImpl.adminMapper = adminMapper;
+    public AdminServiceImpl(UserMapper userMapper, AdminMapper adminMapper) {
+        AdminServiceImpl.userMapper = userMapper;
+        AdminServiceImpl.adminMapper = adminMapper;
     }
 
     //新增用户

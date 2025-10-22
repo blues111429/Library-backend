@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.backend.mapper.BookMapper">
+
+    <select id="getAllBooks" resultType="org.example.backend.dto.response.book.BookListResponse">
+        SELECT
+            b.id,
+            b.title,
+            b.author,
+            b.publisher,
+            b.publish_year AS publishYear,
+            b.isbn,
+            b.category_id AS categoryId,
+            c.name AS categoryName,
+            b.language,
+            b.total_copies AS totalCopies,
+            b.available_copies AS availableCopies,
+            b.create_time AS createTime,
+            b.update_time AS updateTime
+        FROM book b
+                 LEFT JOIN category c ON b.category_id = c.id
+    </select>
+</mapper>

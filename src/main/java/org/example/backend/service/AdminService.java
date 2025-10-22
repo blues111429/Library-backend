@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public interface AdminServer {
+public interface AdminService {
     //新增用户
     Result<String> addUser(RegisterRequest request, HttpServletRequest httpRequest);
     //获取用户列表

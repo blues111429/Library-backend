@@ -107,13 +107,10 @@ public class UserServiceImpl implements UserService {
         //登录校验
         String message = UserTools.tokenCheck(httpRequest);
         if(!message.isEmpty()) { return Result.error(message); }
-
         System.out.println(request.getUser_id());
-
         if(userMapper.updateUserInfo(request) <= 0) {
             return Result.error("修改失败");
         }
-
         return Result.success("修改成功");
     }
 
