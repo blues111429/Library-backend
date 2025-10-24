@@ -2,6 +2,8 @@ package org.example.backend.dto.response.book;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class BookListResponse {
     private Integer id;
@@ -15,4 +17,9 @@ public class BookListResponse {
     private String language;
     private Integer totalCopies;
     private Integer availableCopies;
+    private Integer viewCount;
+    private Integer borrowCount;
+    private Integer status;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }

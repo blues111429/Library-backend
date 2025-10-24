@@ -18,8 +18,11 @@
             b.language,
             b.total_copies AS totalCopies,
             b.available_copies AS availableCopies,
+            b.view_count AS viewCount,
+            b.borrow_count AS borrowCount,
             b.create_time AS createTime,
-            b.update_time AS updateTime
+            b.update_time AS updateTime,
+            b.status AS status
         FROM book b
                  LEFT JOIN category c ON b.category_id = c.id
     </select>

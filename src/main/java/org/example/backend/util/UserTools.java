@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.response.user.UserListResponse;
+import org.example.backend.mapper.AdminMapper;
 import org.example.backend.mapper.UserMapper;
 import org.example.backend.model.User;
 import org.springframework.stereotype.Component;
@@ -12,9 +13,11 @@ import org.springframework.stereotype.Component;
 public class UserTools {
     //依赖注入
     private static UserMapper userMapper = null;
+    private static AdminMapper adminMapper = null;
     private static JwtUtil jwtUtil;
-    public UserTools(UserMapper userMapper, JwtUtil jwtUtil) {
+    public UserTools(UserMapper userMapper, AdminMapper adminMapper, JwtUtil jwtUtil) {
         UserTools.userMapper = userMapper;
+        UserTools.adminMapper = adminMapper;
         UserTools.jwtUtil = jwtUtil;
     }
 
@@ -22,11 +25,15 @@ public class UserTools {
     //未登录检验
     public static String tokenCheck(HttpServletRequest httpRequest) {
         String token = httpRequest.getHeader("Authorization");
-        String message = "";
         if(token == null || !token.startsWith("Bearer ")) {
-            message = "未授权访问，请先登录";
+            return "未授权访问，请先登录";
         }
-        return message;
+
+        token = token.substring(7);
+        if(!jwtUtil.validateToken(token)) {
+            return "Token已过期,请重新登录";
+        }
+        return "";
     }
     //管理员身份校验
     public static String adminCheck(HttpServletRequest httpRequest) {
@@ -51,6 +58,14 @@ public class UserTools {
         if(!"管理员".equals(currentUser.getType_cn())) { return "权限不足，仅管理员可以访问"; }
 
         return "";
+    }
+    //检查是否为管理员
+    public static int isAdmin(HttpServletRequest httpRequest) {
+        String adminMessage = adminCheck(httpRequest);
+        if(adminMessage.isEmpty()) {
+            return 1;
+        }
+        return 0;
     }
     //注册数据校验
     public static String registerCheck(RegisterRequest request) {
@@ -140,5 +155,14 @@ public class UserTools {
         response.setLast_login(user.getLast_login());
         response.setStatus_update_time(user.getStatus_update_time());
         return response;
+    }
+
+    //数据插入
+    //记录管理员操作
+    public static void adminLog(HttpServletRequest httpRequest, String action) {
+        if(isAdmin(httpRequest) != 0) {
+            Integer adminId = getUserIdFromRequest(httpRequest);
+            adminMapper.insertLog(adminId, action);
+        }
     }
 }

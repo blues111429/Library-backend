@@ -29,7 +29,7 @@ public class UserController {
 
     //删除
     @PostMapping("/deleteUser")
-    public Result<String> delete(@RequestBody DeleteRequest request){ return userService.deleteUser(request); }
+    public Result<String> delete(@RequestBody DeleteRequest request, HttpServletRequest httpRequest){ return userService.deleteUser(request, httpRequest); }
 
     //修改信息
     @PostMapping("/updateUserInfo")

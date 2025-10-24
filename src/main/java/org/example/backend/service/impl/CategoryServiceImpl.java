@@ -2,7 +2,6 @@ package org.example.backend.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.response.Result;
-import org.example.backend.mapper.AdminMapper;
 import org.example.backend.mapper.CategoryMapper;
 import org.example.backend.model.Category;
 import org.example.backend.service.CategoryService;
@@ -13,23 +12,16 @@ import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+    //依赖注入
     private final CategoryMapper categoryMapper;
-    private final AdminMapper adminMapper;
-    public CategoryServiceImpl(CategoryMapper categoryMapper, AdminMapper adminMapper) {
+    public CategoryServiceImpl(CategoryMapper categoryMapper) {
         this.categoryMapper = categoryMapper;
-        this.adminMapper = adminMapper;
     }
 
+    //获取分类列表
     @Override
     public Result<List<Category>> getAllCategories(HttpServletRequest httpRequest) {
-        //管理员校验
-        String message = UserTools.adminCheck(httpRequest);
-        if(!message.isEmpty()) { return Result.error(message); }
-
-        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
-        String action = "获取分类列表";
-        adminMapper.insertLog(adminId, action);
-
+        UserTools.adminLog(httpRequest, "获取所有图书信息");
         List<Category> categoryList = categoryMapper.getAllCategories();
         return Result.success(categoryList);
     }

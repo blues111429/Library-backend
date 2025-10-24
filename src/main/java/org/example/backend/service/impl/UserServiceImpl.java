@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
         TokenStore.save(user.getUser_id(), token);
         return Result.success("登录成功", response);
     }
+
     //用户注册
     @Override
     public Result<RegisterResponse> register(RegisterRequest request) {
@@ -65,18 +66,20 @@ public class UserServiceImpl implements UserService {
         response.setToken(token);
         return Result.success("注册成功", response);
     }
+
     //删除用户
     @Override
-    public Result<String> deleteUser(DeleteRequest request) {
-
-        Integer userId = request.getUserId();
-        int result = userMapper.delete(userId);
+    public Result<String> deleteUser(DeleteRequest request, HttpServletRequest httpRequest) {
+        String message = UserTools.tokenCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+        int result = userMapper.delete(request.getUserId());
         if(result <= 0) {
             return Result.error("未找到该用户");
         }
-
+        UserTools.adminLog(httpRequest, "删除用户(用户ID):"+request.getUserId());
         return Result.success("删除成功");
     }
+
     //获取用户信息
     @Override
     public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest) {
@@ -102,6 +105,7 @@ public class UserServiceImpl implements UserService {
         return Result.success("获取成功", response);
     }
 
+    //更新用户信息
     @Override
     public Result<String> updateUserInfo(UpdateUserInfoRequest request, HttpServletRequest httpRequest) {
         //登录校验

@@ -21,11 +21,9 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
     //mapper注入(构造方法)
     private static UserMapper userMapper;
-    private static AdminMapper adminMapper;
 
-    public AdminServiceImpl(UserMapper userMapper, AdminMapper adminMapper) {
+    public AdminServiceImpl(UserMapper userMapper) {
         AdminServiceImpl.userMapper = userMapper;
-        AdminServiceImpl.adminMapper = adminMapper;
     }
 
     //新增用户
@@ -41,9 +39,7 @@ public class AdminServiceImpl implements AdminService {
         User user = UserTools.userRegister(request);
 
         if(userMapper.insert(user) <= 0) { return Result.error("新增失败"); }
-
-        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
-        adminMapper.insertLog(adminId, "新增用户:" + request.getPhone());
+        UserTools.adminLog(httpRequest, "新增用户(用户手机号:):"+request.getPhone());
 
         return Result.success("新增成功");
     }
@@ -60,10 +56,7 @@ public class AdminServiceImpl implements AdminService {
             UserListResponse response = UserTools.getUserListResponse(user);
             userListResponse.add(response);
         }
-
-        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
-        adminMapper.insertLog(adminId, "获取用户列表");
-
+        UserTools.adminLog(httpRequest, "获取用户列表");
         return Result.success("获取用户列表成功",userListResponse);
     }
     //更新账号状态
@@ -84,10 +77,7 @@ public class AdminServiceImpl implements AdminService {
                     TokenStore.remove(userId);
                 }
             }
-
-            Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
-            String action = (newStatus == 1 ? "启用" : "禁用") + "用户(用户ID):" + userId;
-            adminMapper.insertLog(adminId, action);
+            UserTools.adminLog(httpRequest, (newStatus == 1 ? "启用" : "禁用") + "用户(用户ID):" + userId);
 
             return Result.success("用户状态更新成功");
         } else {
@@ -110,7 +100,7 @@ public class AdminServiceImpl implements AdminService {
             }
         }
         User user = UserTools.newUser(request);
-        System.out.println("当前被编辑用户:"+user);
+
 
         if(userMapper.editUser(request) <= 0) {
             return Result.error("编辑失败");

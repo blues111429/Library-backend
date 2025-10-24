@@ -13,7 +13,7 @@ public interface UserService {
     //注册
     Result<RegisterResponse> register(RegisterRequest request);
     //删除用户
-    Result<String> deleteUser(DeleteRequest request);
+    Result<String> deleteUser(DeleteRequest request, HttpServletRequest httpRequest);
     //用户信息
     Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest);
     //修改用户信息
