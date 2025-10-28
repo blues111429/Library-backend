@@ -49,8 +49,10 @@ public class AdminServiceImpl implements AdminService {
         //管理员身份校验
         String message = UserTools.adminCheck(httpRequest);
         if(!message.isEmpty()) { return Result.error(message); }
+        //获取管理员ID
+        Integer adminId = UserTools.getUserIdFromRequest(httpRequest);
 
-        List<User> users = userMapper.userList();
+        List<User> users = userMapper.userList(adminId);
         List<UserListResponse> userListResponse = new ArrayList<>();
         for(User user : users) {
             UserListResponse response = UserTools.getUserListResponse(user);
@@ -99,13 +101,31 @@ public class AdminServiceImpl implements AdminService {
                 return Result.error("该手机号已被使用");
             }
         }
+
         User user = UserTools.newUser(request);
-
-
+        System.out.println(request);
         if(userMapper.editUser(request) <= 0) {
             return Result.error("编辑失败");
         }
 
+        StringBuilder logBuilder = new StringBuilder("编辑用户ID:" + oldUser.getUser_id() + "修改字段：");
+        if(request.getName() != null && !request.getName().equals(oldUser.getName())) {
+            logBuilder.append("用户姓名从[").append(oldUser.getName()).append("]改为[").append(request.getName()).append("]");
+        }
+        if(request.getPhone() != null && !request.getPhone().equals(oldUser.getPhone())) {
+            logBuilder.append("用户手机号从[").append(oldUser.getPhone()).append("]改为[").append(request.getPhone()).append("]");
+        }
+        if(request.getEmail() != null && !request.getEmail().equals(oldUser.getEmail())) {
+            logBuilder.append("用户邮箱从[").append(oldUser.getEmail()).append("]改为[").append(request.getEmail()).append("]");
+        }
+        if(request.getGender() != null && !request.getGender().equals(oldUser.getGender())) {
+            logBuilder.append("用户性别从[").append(oldUser.getGender()).append("]改为[").append(request.getGender()).append("]");
+        }
+        if(request.getType() != null && !request.getType().equals(oldUser.getType())) {
+            logBuilder.append("用户类别从[").append(oldUser.getType()).append("]改为[").append(request.getType()).append("]");
+        }
+
+        UserTools.adminLog(httpRequest, logBuilder.toString());
         return Result.success("编辑成功");
     }
 }

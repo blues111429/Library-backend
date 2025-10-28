@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
     //获取用户列表
-    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE status >=0")
-    List<User> userList();
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE status >=0 AND user_id != #{adminId}")
+    List<User> userList(@Param("adminId") Integer adminId);
 
     //根据用户Id获取用户
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE user_id = #{userId}")
