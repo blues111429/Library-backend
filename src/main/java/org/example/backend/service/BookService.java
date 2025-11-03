@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.book.*;
 import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.book.BookListResponse;
+import org.example.backend.dto.response.book.BookShelf;
 import org.example.backend.dto.response.book.BorrowRecordResponse;
 import org.example.backend.model.Book;
 import org.springframework.stereotype.Service;
@@ -28,4 +29,6 @@ public interface BookService {
     Result<String> returnBook(ReturnBookRequest request, HttpServletRequest httpRequest);
     //借阅列表
     Result<List<BorrowRecordResponse>> borrowList(HttpServletRequest httpRequest);
+    //书架
+    Result<List<BookShelf>> getBookShelf(HttpServletRequest httpRequest);
 }

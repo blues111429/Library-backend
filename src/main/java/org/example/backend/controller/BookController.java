@@ -6,6 +6,7 @@ import org.example.backend.dto.request.book.ReturnBookRequest;
 import org.example.backend.dto.request.book.UpdateStatusRequest;
 import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.book.BookListResponse;
+import org.example.backend.dto.response.book.BookShelf;
 import org.example.backend.dto.response.book.BorrowRecordResponse;
 import org.example.backend.model.Book;
 import org.example.backend.service.BookService;
@@ -40,4 +41,7 @@ public class BookController {
     //获取所有借阅记录
     @GetMapping("/borrowList")
     public Result<List<BorrowRecordResponse>> borrowRecord(HttpServletRequest httpRequest) { return bookService.borrowList(httpRequest);}
+    //获取书架
+    @GetMapping("/bookshelf")
+    public Result<List<BookShelf>> getBookShelf(HttpServletRequest httpRequest) { return bookService.getBookShelf(httpRequest); }
 }

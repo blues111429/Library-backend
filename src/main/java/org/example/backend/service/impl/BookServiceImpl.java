@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.book.*;
 import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.book.BookListResponse;
+import org.example.backend.dto.response.book.BookShelf;
 import org.example.backend.dto.response.book.BorrowRecordResponse;
 import org.example.backend.mapper.BookMapper;
 import org.example.backend.mapper.BorrowRecordMapper;
@@ -184,5 +185,15 @@ public class BookServiceImpl implements BookService {
         if(!message.isEmpty()) { return Result.error(message); }
         List<BorrowRecordResponse> records = borrowRecordMapper.selectAll(UserTools.getUserIdFromRequest(httpRequest));
         return Result.success(records);
+    }
+
+    //书架列表
+    @Override
+    public Result<List<BookShelf>> getBookShelf(HttpServletRequest httpRequest) {
+        String message = UserTools.tokenCheck(httpRequest);
+        if(!message.isEmpty()) { return Result.error(message); }
+
+        List<BookShelf> books = bookMapper.selectBooksByUserId(UserTools.getUserIdFromRequest(httpRequest));
+        return Result.success(books);
     }
 }
