@@ -2,6 +2,7 @@ package org.example.backend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.dto.request.book.BorrowBookRequest;
+import org.example.backend.dto.request.book.BrowseHistoryRequest;
 import org.example.backend.dto.request.book.ReturnBookRequest;
 import org.example.backend.dto.request.book.UpdateStatusRequest;
 import org.example.backend.dto.response.Result;
@@ -44,4 +45,8 @@ public class BookController {
     //获取书架
     @GetMapping("/bookshelf")
     public Result<List<BookShelf>> getBookShelf(HttpServletRequest httpRequest) { return bookService.getBookShelf(httpRequest); }
+
+    //浏览历史
+    @PostMapping("/browse")
+    public Result<String> addHistory(@RequestBody BrowseHistoryRequest request, HttpServletRequest httpRequest) { return bookService.addHistory(request,httpRequest); }
 }

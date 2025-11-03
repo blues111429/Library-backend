@@ -8,8 +8,10 @@ import org.example.backend.dto.response.book.BookShelf;
 import org.example.backend.dto.response.book.BorrowRecordResponse;
 import org.example.backend.mapper.BookMapper;
 import org.example.backend.mapper.BorrowRecordMapper;
+import org.example.backend.mapper.BrowseHistoryMapper;
 import org.example.backend.model.Book;
 import org.example.backend.model.BorrowRecord;
+import org.example.backend.model.BrowseHistory;
 import org.example.backend.service.BookService;
 import org.example.backend.util.UserTools;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,12 @@ import java.util.List;
 public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
     private final BorrowRecordMapper borrowRecordMapper;
-    public BookServiceImpl(BookMapper bookMapper, BorrowRecordMapper borrowRecordMapper) {
+    private final BrowseHistoryMapper browseHistoryMapper;
+
+    public BookServiceImpl(BookMapper bookMapper, BorrowRecordMapper borrowRecordMapper, BrowseHistoryMapper browseHistoryMapper) {
         this.bookMapper = bookMapper;
         this.borrowRecordMapper = borrowRecordMapper;
+        this.browseHistoryMapper = browseHistoryMapper;
     }
 
     //用户/管理员
@@ -195,5 +200,16 @@ public class BookServiceImpl implements BookService {
 
         List<BookShelf> books = bookMapper.selectBooksByUserId(UserTools.getUserIdFromRequest(httpRequest));
         return Result.success(books);
+    }
+
+    @Override
+    public Result<String> addHistory(BrowseHistoryRequest request, HttpServletRequest httpRequest) {
+        BrowseHistory history = BrowseHistory.builder()
+                .userId(UserTools.getUserIdFromRequest(httpRequest))
+                .bookId(request.getBookId())
+                .browseDate(LocalDateTime.now())
+                .build();
+        browseHistoryMapper.insert(history);
+        return Result.success("浏览记录插入成功");
     }
 }

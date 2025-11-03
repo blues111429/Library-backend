@@ -31,4 +31,6 @@ public interface BookService {
     Result<List<BorrowRecordResponse>> borrowList(HttpServletRequest httpRequest);
     //书架
     Result<List<BookShelf>> getBookShelf(HttpServletRequest httpRequest);
+    //图书浏览记录
+    Result<String> addHistory(BrowseHistoryRequest request, HttpServletRequest httpRequest);
 }
