@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class AdminLog {
-    private Integer logId;
-    private Integer adminId;
+    private Integer log_id;
+    private Integer admin_id;
     private String action;
-    private LocalDateTime createTime;
+    private LocalDateTime create_time;
 }

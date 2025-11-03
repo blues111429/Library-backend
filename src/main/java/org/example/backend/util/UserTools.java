@@ -59,7 +59,7 @@ public class UserTools {
 
         return "";
     }
-    //检查是否为管理员
+    //检查是否为管理员(会直接判断是否登录)
     public static int isAdmin(HttpServletRequest httpRequest) {
         String adminMessage = adminCheck(httpRequest);
         if(adminMessage.isEmpty()) {

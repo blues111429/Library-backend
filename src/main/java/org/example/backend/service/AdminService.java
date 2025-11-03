@@ -1,23 +1,12 @@
 package org.example.backend.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.backend.dto.request.user.EditUserRequest;
-import org.example.backend.dto.request.user.RegisterRequest;
-import org.example.backend.dto.request.user.UpdateUserStatusRequest;
 import org.example.backend.dto.response.Result;
-import org.example.backend.dto.response.user.UserListResponse;
+import org.example.backend.dto.response.admin.AdminLogResponse;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public interface AdminService {
-    //新增用户
-    Result<String> addUser(RegisterRequest request, HttpServletRequest httpRequest);
-    //获取用户列表
-    Result<List<UserListResponse>> userList(HttpServletRequest httpRequest);
-    //更新账号状态
-    Result<String> updateStatus(UpdateUserStatusRequest request, HttpServletRequest httpRequest);
-    //编辑用户信息
-    Result<String> editUser(EditUserRequest request, HttpServletRequest httpRequest);
+    //查看管理员操作日志
+    Result<AdminLogResponse> adminLog(HttpServletRequest httpRequest);
 }

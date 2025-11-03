@@ -21,7 +21,7 @@ public class CategoryServiceImpl implements CategoryService {
     //获取分类列表
     @Override
     public Result<List<Category>> getAllCategories(HttpServletRequest httpRequest) {
-        UserTools.adminLog(httpRequest, "获取所有图书信息");
+        UserTools.adminLog(httpRequest, "获取所有图书分类");
         List<Category> categoryList = categoryMapper.getAllCategories();
         return Result.success(categoryList);
     }
