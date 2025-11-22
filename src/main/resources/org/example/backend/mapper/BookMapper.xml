@@ -71,4 +71,24 @@
         VALUES
         (#{title}, #{author}, #{categoryId}, #{isbn}, #{totalCopies}, #{availableCopies}, #{publisher}, #{publishYear}, 1, 0, 0, NOW(), NOW())
     </insert>
+
+    <select id="countCategoryPreference" resultType="map">
+        SELECT category_id, COUNT(*) AS cnt
+        FROM book
+        WHERE id IN
+        <foreach collection="bookIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY category_id
+    </select>
+
+    <select id="countAuthorPreference" resultType="map">
+        SELECT author, COUNT(*) AS cnt
+        FROM book
+        WHERE id IN
+        <foreach collection="bookIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY author
+    </select>
 </mapper>

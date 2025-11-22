@@ -15,6 +15,8 @@ import java.util.List;
 public interface BookService {
     //获取全部图书
     Result<List<BookListResponse>> getBookList(HttpServletRequest httpRequest);
+    //刷新推荐
+    Result<List<BookListResponse>> refreshRecommendations(HttpServletRequest httpRequest);
     //修改图书状态
     Result<String> updateStatus(UpdateStatusRequest request, HttpServletRequest httpRequest);
     //编辑图书

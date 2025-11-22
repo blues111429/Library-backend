@@ -22,7 +22,6 @@ public class UserServiceImpl implements UserService {
         UserServiceImpl.userMapper = userMapper;
         UserServiceImpl.jwtUtil = jwtUtil;
     }
-
     //用户/管理员
     //登录
     @Override
@@ -126,8 +125,6 @@ public class UserServiceImpl implements UserService {
         TokenBlacklist.add(token);
         return Result.success("退出成功,正在跳转...");
     }
-
-
     //管理员
     //新增用户
     @Override

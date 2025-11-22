@@ -9,9 +9,17 @@ import java.util.List;
 
 @Mapper
 public interface BorrowRecordMapper {
+    //获取所有
+    @Select("SELECT * FROM borrow_record")
+    List<BorrowRecord> findAll();
+
     //根据借阅ID查询
     @Select("SELECT * FROM borrow_record WHERE id = #{id}")
     BorrowRecord selectById(@Param("id") Integer id);
+
+    //按用户ID查询
+    @Select("SELECT * FROM borrow_record WHERE user_id = #{user_id}")
+    List<BorrowRecord> findByUserId(@Param("user_id") Integer user_id);
 
     //插入借阅记录
     @Insert("INSERT INTO borrow_record(user_id, book_id, borrow_date, due_date, status, create_time, update_time)" +

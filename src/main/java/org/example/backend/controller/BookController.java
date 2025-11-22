@@ -26,6 +26,9 @@ public class BookController {
     //获取图书列表
     @GetMapping("/bookList")
     public Result<List<BookListResponse>> getBookList(HttpServletRequest httpRequest) {return bookService.getBookList(httpRequest);}
+    //刷新推荐
+    @GetMapping("/refreshRecommend")
+    public Result<List<BookListResponse>> refreshRecommendations(HttpServletRequest httpRequest) {return bookService.refreshRecommendations(httpRequest);}
     //修改图书状态(上/下架)
     @PostMapping("/updateStatus")
     public Result<String> updateStatus(@RequestBody UpdateStatusRequest request, HttpServletRequest httpRequest) { return bookService.updateStatus(request, httpRequest); }
