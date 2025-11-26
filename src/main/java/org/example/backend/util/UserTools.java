@@ -1,7 +1,6 @@
 package org.example.backend.util;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.backend.dto.request.user.EditUserRequest;
 import org.example.backend.dto.request.user.RegisterRequest;
 import org.example.backend.dto.response.user.UserListResponse;
 import org.example.backend.mapper.AdminMapper;
