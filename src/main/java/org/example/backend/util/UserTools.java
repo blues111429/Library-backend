@@ -21,10 +21,15 @@ public class UserTools {
         UserTools.jwtUtil = jwtUtil;
     }
 
-    //校验
+    //仅获取token
+    private static String getToken(HttpServletRequest httpRequest) {
+        return httpRequest.getHeader("Authorization");
+    }
+
+    //仅校验token
     //未登录检验
     public static String tokenCheck(HttpServletRequest httpRequest) {
-        String token = httpRequest.getHeader("Authorization");
+        String token = getToken(httpRequest);
         if(token == null || !token.startsWith("Bearer ")) {
             return "未授权访问，请先登录";
         }
@@ -37,13 +42,13 @@ public class UserTools {
     }
     //管理员身份校验
     public static String adminCheck(HttpServletRequest httpRequest) {
-        String token = httpRequest.getHeader("Authorization");
         //未登录
-        if (token == null || !token.startsWith("Bearer ")) {
-            return "未授权访问,请先登录";
+        String message = tokenCheck(httpRequest);
+        if(!message.isEmpty()) {
+            return message;
         }
         //去掉‘Bearer’
-        token = token.substring(7);
+        String token = getToken(httpRequest).substring(7);
         String username;
         try {
             username = jwtUtil.getUsernameFromToken(token);
@@ -88,12 +93,12 @@ public class UserTools {
     //获取信息
     //从请求中获取用户ID
     public static Integer getUserIdFromRequest(HttpServletRequest httpRequest) {
-        String token = httpRequest.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("缺少token");
+        String message = tokenCheck(httpRequest);
+        if(!message.isEmpty()) {
+            throw new RuntimeException(message);
         }
 
-        token = token.substring(7);
+        String token = getToken(httpRequest).substring(7);
         if (!jwtUtil.validateToken(token)) {
             throw new RuntimeException("无效token");
         }
@@ -108,19 +113,6 @@ public class UserTools {
     }
 
     //配置
-    //新建用户，并编辑设置其字段的值
-    public static User newUser(EditUserRequest request) {
-        User user = new User();
-        user.setUser_id(request.getUser_id());
-        user.setUsername(request.getPhone());
-        user.setPhone(request.getPhone());
-        user.setName(request.getName());
-        user.setGender(request.getGender());
-        user.setType(request.getType());
-        user.setType_cn(request.getType());
-        user.setEmail(request.getEmail());
-        return user;
-    }
     //设置用户注册
     public static User userRegister(RegisterRequest request) {
         //密码加密
