@@ -26,6 +26,31 @@
         FROM book b
                  LEFT JOIN category c ON b.category_id = c.id
     </select>
+
+    <!-- 获取分页后的图书列表 -->
+    <select id="getBooksWithPagination" resultType="org.example.backend.dto.response.book.BookListResponse">
+        SELECT
+            b.id,
+            b.title,
+            b.author,
+            b.publisher,
+            b.publish_year AS publishYear,
+            b.isbn,
+            b.category_id AS categoryId,
+            c.name AS categoryName,
+            b.language,
+            b.total_copies AS totalCopies,
+            b.available_copies AS availableCopies,
+            b.view_count AS viewCount,
+            b.borrow_count AS borrowCount,
+            b.create_time AS createTime,
+            b.update_time AS updateTime,
+            b.status AS status
+        FROM book b
+                 LEFT JOIN category c ON b.category_id = c.id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <!--  编辑图书  -->
     <update id="editBook" parameterType="org.example.backend.dto.request.book.EditBookRequest">
         UPDATE  `book`

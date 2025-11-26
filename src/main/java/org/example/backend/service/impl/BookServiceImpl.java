@@ -41,60 +41,9 @@ public class BookServiceImpl implements BookService {
     @Override
     public Result<List<BookListResponse>> getBookList(HttpServletRequest httpRequest) {
         Integer userId = UserTools.getUserIdFromRequest(httpRequest);
-        UserTools.adminLog(httpRequest, "获取图书列表");
 
-        // 读取分页参数（前端可传 ?page=2&limit=8）
-        int page = 1;
-        int limit = 15; // 与前端默认 pageSize 保持一致
-        try {
-            String p = httpRequest.getParameter("page");
-            String l = httpRequest.getParameter("limit");
-            if (p != null) page = Math.max(1, Integer.parseInt(p));
-            if (l != null) limit = Math.max(1, Integer.parseInt(l));
-        } catch (Exception ignored) {}
-
-        // 如果是第一页并且用户有缓存，直接返回缓存
-        if (page == 1 && userId != null && userRecommendationsCache.containsKey(userId)) {
-            System.out.println("[缓存推荐] 用户 " + userId + " 使用已生成的推荐结果（page=1）");
-            // 如果前端请求了 limit != 默认值，最好在缓存里取子集或不缓存不同 limit 的情况
-            List<BookListResponse> cached = userRecommendationsCache.get(userId);
-            // 返回全部合并结果（前端自己会做分页展示）
-            return Result.success(cached);
-        }
-
-        // 生成推荐（SmartRecommendations 支持 page & limit）
-        List<BookListResponse> allBooks = bookMapper.getAllBooks();
-        List<BookListResponse> recommendations = SmartRecommendations(userId, page, limit);
-
-        // 如果 page == 1，我们想把【推荐 + 打乱剩余】合并并缓存（便于用户后续翻页体验）
-        if (page == 1) {
-            // 保证 recommendations 不超过 limit
-            if (recommendations.size() > limit) {
-                recommendations = recommendations.subList(0, limit);
-            }
-            // 计算剩余并打乱
-            Set<Integer> recIds = recommendations.stream()
-                    .filter(r -> r != null && r.getId() != null)
-                    .map(BookListResponse::getId)
-                    .collect(Collectors.toSet());
-            List<BookListResponse> remaining = allBooks.stream()
-                    .filter(b -> b != null && b.getId() != null && !recIds.contains(b.getId()))
-                    .collect(Collectors.toList());
-            Collections.shuffle(remaining);
-
-            List<BookListResponse> result = new ArrayList<>();
-            result.addAll(recommendations);
-            result.addAll(remaining);
-
-            if (userId != null) {
-                userRecommendationsCache.put(userId, result);
-                System.out.println("[缓存] 已缓存用户 " + userId + " 的推荐列表（作为 page=1 显示）");
-            }
-            return Result.success(result);
-        } else {
-            // page != 1：SmartRecommendations 已返回对应页的数据（你 SmartRecommendations 的实现是这样设计的）
-            return Result.success(recommendations);
-        }
+        List<BookListResponse> bookList = bookMapper.getAllBooks();
+        return Result.success(bookList);
     }
 
     // 强制刷新推荐（前端点击 “刷新推荐” 调用）
@@ -135,9 +84,10 @@ public class BookServiceImpl implements BookService {
     //获取图书详情
     @Override
     public Result<Book> getBookById(Integer id) {
-        Book book = bookMapper.findBookById(id);
+        Book book = bookMapper.findBookByIdWithTags(id);
+        System.out.println("获取的图书" + book);
         if(book == null){
-            return Result.error("为找到该图书");
+            return Result.error("未找到该图书");
         }
         bookMapper.incrementViewCount(id);
         return Result.success(book);

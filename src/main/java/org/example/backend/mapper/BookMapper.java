@@ -17,10 +17,23 @@ public interface BookMapper {
 
     // 获取全部图书
     List<BookListResponse> getAllBooks();
+    List<BookListResponse> getBooksWithPagination(int limit, int offset);
 
     // 查询图书(ID)
     @Select("SELECT * FROM book WHERE id = #{id}")
     Book findBookById(@Param("id") Integer id);
+
+    @Select("SELECT b.*, GROUP_CONCAT(t.name) AS tags FROM book b " +
+            "LEFT JOIN book_tag bt ON b.id = bt.book_id " +
+            "LEFT JOIN tag t ON bt.tag_id = t.id " +
+            "WHERE b.id = #{id} GROUP BY b.id")
+    @Results({
+            @Result(property = "tags", column = "tags")
+    })
+    Book findBookByIdWithTags(@Param("id") Integer id);
+
+
+
 
     // (ISBN)
     @Select("SELECT * FROM book WHERE isbn = #{isbn}")
