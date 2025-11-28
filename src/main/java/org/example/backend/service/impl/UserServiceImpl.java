@@ -5,13 +5,17 @@ import org.example.backend.dto.request.user.*;
 import org.example.backend.dto.response.Result;
 import org.example.backend.dto.response.user.*;
 import org.example.backend.mapper.UserMapper;
+import org.example.backend.model.FieldValue;
 import org.example.backend.model.User;
 import org.example.backend.service.UserService;
 import org.example.backend.util.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -206,24 +210,18 @@ public class UserServiceImpl implements UserService {
             return Result.error("编辑失败");
         }
 
-        StringBuilder logBuilder = new StringBuilder("编辑用户ID:" + oldUser.getUser_id() + "修改字段：");
-        if(request.getName() != null && !request.getName().equals(oldUser.getName())) {
-            logBuilder.append("用户姓名从[").append(oldUser.getName()).append("]改为[").append(request.getName()).append("]");
-        }
-        if(request.getPhone() != null && !request.getPhone().equals(oldUser.getPhone())) {
-            logBuilder.append("用户手机号从[").append(oldUser.getPhone()).append("]改为[").append(request.getPhone()).append("]");
-        }
-        if(request.getEmail() != null && !request.getEmail().equals(oldUser.getEmail())) {
-            logBuilder.append("用户邮箱从[").append(oldUser.getEmail()).append("]改为[").append(request.getEmail()).append("]");
-        }
-        if(request.getGender() != null && !request.getGender().equals(oldUser.getGender())) {
-            logBuilder.append("用户性别从[").append(oldUser.getGender()).append("]改为[").append(request.getGender()).append("]");
-        }
-        if(request.getType() != null && !request.getType().equals(oldUser.getType())) {
-            logBuilder.append("用户类别从[").append(oldUser.getType()).append("]改为[").append(request.getType()).append("]");
-        }
+        List<FieldValue> userFields = Arrays.asList(
+                new FieldValue("姓名", oldUser.getName(), request.getName()),
+                new FieldValue("手机号", oldUser.getPhone(), request.getPhone()),
+                new FieldValue("邮箱", oldUser.getEmail(), request.getEmail()),
+                new FieldValue("性别", oldUser.getGender(), request.getGender()),
+                new FieldValue("类别", oldUser.getType(), request.getType())
+        );
+        Map<String, Object> oldValues = userFields.stream().collect(Collectors.toMap(FieldValue::getField, FieldValue::getOldValue));
+        Map<String, Object> newValues = userFields.stream().collect(Collectors.toMap(FieldValue::getField, FieldValue::getNewValue));
+        String log = LogEditor.generateEditLog("编辑用户", String.valueOf(oldUser.getUser_id()), oldValues, newValues);
 
-        UserTools.adminLog(httpRequest, logBuilder.toString());
+        UserTools.adminLog(httpRequest, log);
         return Result.success("编辑成功");
     }
 }

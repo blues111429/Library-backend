@@ -17,7 +17,6 @@ public interface BookMapper {
 
     // 获取全部图书
     List<BookListResponse> getAllBooks();
-    List<BookListResponse> getBooksWithPagination(int limit, int offset);
 
     // 查询图书(ID)
     @Select("SELECT * FROM book WHERE id = #{id}")
