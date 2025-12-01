@@ -1,10 +1,12 @@
 package org.example.backend.dto.response.user;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class UserListResponse {
     private String message;
     private Integer user_id;
