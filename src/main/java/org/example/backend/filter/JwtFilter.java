@@ -27,14 +27,16 @@ public class JwtFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        String path = request.getServletPath();
+        System.out.println("请求路径: " + path);
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("未提供token");
@@ -42,14 +44,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        System.out.println("提取的 token: " + token);
 
-        if(TokenBlacklist.isBlacklisted(token)) {
+        if (TokenBlacklist.isBlacklisted(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token已失效，请重新登录");
             return;
         }
 
-        if(!jwtUtil.validateToken(token)) {
+        if (!jwtUtil.validateToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token无效");
             return;
@@ -60,21 +63,19 @@ public class JwtFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(usernameFromToken, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // --- 在这里加调试日志 ---
-        System.out.println("请求路径: " + request.getServletPath());
-        System.out.println("Authorization header: " + authHeader);
-        System.out.println("Token有效性: " + jwtUtil.validateToken(token));
-        // ---------------------
+        // 打印验证结果
+        System.out.println("Token 验证成功，用户名: " + usernameFromToken);
 
         filterChain.doFilter(request, response);
     }
+
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path =  request.getServletPath();
         return "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
-                path.equals("/api/user/login") ||
-                path.equals("/api/user/register") ||
-                path.equals("/api/user/logout");
+                path.matches("/api/user/(login|register|logout|resetPassword)") ||
+                path.equals("/api/book/**") ||
+                path.equals("/api/category/**");
     }
 }

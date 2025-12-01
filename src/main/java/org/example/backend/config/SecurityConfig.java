@@ -31,8 +31,9 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/user/login", "/api/user/register", "/api/user/logout").permitAll()
+                        .requestMatchers("/api/user/login", "/api/user/register", "/api/user/logout", "/api/user/resetPassword").permitAll()
                         .requestMatchers("/api/book/**").permitAll()
+                        .requestMatchers("/api/category/**").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
