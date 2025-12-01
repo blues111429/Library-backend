@@ -114,35 +114,35 @@ public class UserTools {
         //密码加密
         String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
         //创建新用户
-        User user = new User();
-        user.setUsername(request.getPhone());
-        user.setPassword_hash(encryptedPassword);
-        user.setName(request.getName());
-        user.setGender(request.getGender());
-        user.setType(request.getType());
-        user.setType_cn(request.getType());
-        user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
-        user.setStatus(1);
+        User user = User.builder()
+                .username(request.getPhone())
+                .password_hash(encryptedPassword)
+                .name(request.getName())
+                .gender(request.getGender())
+                .type(request.getType())
+                .type_cn(request.getType())
+                .phone(request.getPhone())
+                .email(request.getEmail())
+                .status(1)
+                .build();
         System.out.println("注册用户信息"+user);
         return user;
     }
     //设置获取用户列表返回的response
     public static UserListResponse getUserListResponse(User user) {
-        UserListResponse response = new UserListResponse();
-        response.setUser_id(user.getUser_id());
-        response.setUsername(user.getUsername());
-        response.setName(user.getName());
-        response.setGender(user.getGender());
-        response.setType(user.getType());
-        response.setTypeCn(user.getType_cn());
-        response.setPhone(user.getPhone());
-        response.setEmail(user.getEmail());
-        response.setStatus(user.getStatus());
-        response.setCreate_time(user.getCreate_time());
-        response.setLast_login(user.getLast_login());
-        response.setStatus_update_time(user.getStatus_update_time());
-        return response;
+        return UserListResponse.builder()
+                .user_id(user.getUser_id())
+                .username(user.getUsername())
+                .gender(user.getGender())
+                .type(user.getType())
+                .typeCn(user.getType_cn())
+                .phone(user.getPhone())
+                .email(user.getEmail())
+                .status(user.getStatus())
+                .create_time(user.getCreate_time())
+                .last_login(user.getLast_login())
+                .status_update_time(user.getStatus_update_time())
+                .build();
     }
 
     //数据插入
