@@ -22,7 +22,8 @@ public interface UserService {
     Result<String> updateUserInfo(UpdateUserInfoRequest request, HttpServletRequest httpRequest);
     //退出登录
     Result<LogoutResponse> logout(HttpServletRequest httpRequest);
-
+    //修改密码
+    Result<String> resetPassword(HttpServletRequest httpRequest);
 
     //新增用户
     Result<String> addUser(RegisterRequest request, HttpServletRequest httpRequest);
