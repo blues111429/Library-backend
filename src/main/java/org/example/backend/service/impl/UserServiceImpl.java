@@ -26,30 +26,30 @@ public class UserServiceImpl implements UserService {
         UserServiceImpl.userMapper = userMapper;
         UserServiceImpl.jwtUtil = jwtUtil;
     }
-    //用户/管理员
     //登录
     @Override
     public Result<LoginResponse> login(LoginRequest request) {
+        //查询用户
         User user = userMapper.findByUsername(request.getPhone());
-
-        if( user == null ) { return Result.error("用户名不存在"); }
-
+        //是否存在
+        if(user == null) { return Result.error("用户不存在"); }
+        //检查状态
         if(userMapper.userStatus(user.getUsername()) <= 0) {return Result.error("该用户已被冻结或被删除，请联系管理员");}
-
+        //账密
         boolean match = PasswordUtil.matches(request.getPassword(), user.getPassword_hash());
         if(!match) { return Result.error("密码错误"); }
-
         //更新登录时间
         userMapper.updateLastLogin(user.getUser_id());
         //生成token
         String token = jwtUtil.generateToken(user.getUsername());
-
+        //返回回应
         LoginResponse response = LoginResponse.builder()
                                 .name(user.getName())
                                 .userId(user.getUser_id())
                                 .username(user.getUsername())
                                 .typeCn(user.getType_cn())
                                 .token(token).build();
+        //保存生成的Token
         TokenStore.save(user.getUser_id(), token);
         return Result.success("登录成功", response);
     }
@@ -59,24 +59,24 @@ public class UserServiceImpl implements UserService {
         //注册数据校验
         String message = UserTools.registerCheck(request);
         if(!message.isEmpty()) { return Result.error(message); }
-
-        RegisterResponse response = new RegisterResponse();
-        User user = UserTools.userRegister(request);
-
+        //新增用户
+        User user = UserTools.userRegister(request);//创建新用户
         if(userMapper.insert(user) <= 0) {return Result.error("注册失败");}
-        //为新用户生成token
-        String token =  jwtUtil.generateToken(user.getUsername());
 
-        response.setMessage("注册成功");
-        response.setUserId(user.getUser_id());
-        response.setToken(token);
+        RegisterResponse response = RegisterResponse.builder()
+                .message("注册成功")
+                .userId(user.getUser_id())
+                .build();
         return Result.success("注册成功", response);
     }
-    //删除用户
+    //删除用户(暂不做更改）
     @Override
     public Result<String> deleteUser(DeleteRequest request, HttpServletRequest httpRequest) {
+        //判断执行该操作用户是否为登录状态
         String message = UserTools.tokenCheck(httpRequest);
         if(!message.isEmpty()) { return Result.error(message); }
+        //删除token
+        TokenStore.remove(request.getUserId());
         int result = userMapper.delete(request.getUserId());
         if(result <= 0) {
             return Result.error("未找到该用户");
@@ -103,14 +103,14 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByUsername(username);
         if( user == null ) { return Result.error("没有找到该用户"); }
         UserInfoResponse response = UserInfoResponse.builder()
-                                    .user_id(user.getUser_id())
-                                    .username(user.getUsername())
-                                    .name(user.getName())
-                                    .typeCn(user.getType_cn())
-                                    .gender(user.getGender())
-                                    .phone(user.getPhone())
-                                    .email(user.getEmail())
-                                    .build();
+                .user_id(user.getUser_id())
+                .username(user.getUsername())
+                .name(user.getName())
+                .typeCn(user.getType_cn())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .email(user.getEmail())
+                .build();
         return Result.success("获取成功", response);
     }
     //更新用户信息
@@ -204,8 +204,8 @@ public class UserServiceImpl implements UserService {
         if(!message.isEmpty()) { return Result.error(message); }
 
         User oldUser = userMapper.findUserById(request.getUser_id());
-        System.out.println("修改前用户:" + oldUser);
         if(oldUser == null) {return Result.error("该用户不存在");}
+        System.out.println("修改前用户:" + oldUser);
         if(request.getPhone() !=  null && !request.getPhone().equals(oldUser.getPhone())) {
             if(userMapper.findByOnlyUsername(request.getPhone()) != null) {
                 return Result.error("该手机号已被使用");
@@ -214,7 +214,7 @@ public class UserServiceImpl implements UserService {
         if(userMapper.editUser(request) <= 0) {
             return Result.error("编辑失败");
         }
-
+        //编辑日志
         List<FieldValue> userFields = Arrays.asList(
                 new FieldValue("姓名", oldUser.getName(), request.getName()),
                 new FieldValue("手机号", oldUser.getPhone(), request.getPhone()),
@@ -225,8 +225,8 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> oldValues = userFields.stream().collect(Collectors.toMap(FieldValue::getField, FieldValue::getOldValue));
         Map<String, Object> newValues = userFields.stream().collect(Collectors.toMap(FieldValue::getField, FieldValue::getNewValue));
         String log = LogEditor.generateEditLog("编辑用户", String.valueOf(oldUser.getUser_id()), oldValues, newValues);
-
         UserTools.adminLog(httpRequest, log);
+
         return Result.success("编辑成功");
     }
 }

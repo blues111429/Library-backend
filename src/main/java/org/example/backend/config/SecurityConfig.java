@@ -31,9 +31,9 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/user/login", "/api/user/register", "/api/user/logout", "/api/user/resetPassword").permitAll()
-                        .requestMatchers("/api/book/**").permitAll()
-                        .requestMatchers("/api/category/**").permitAll()
+                        .requestMatchers("/api/user/login", "/api/user/register", "/api/user/logout").permitAll()
+                        .requestMatchers("/api/book/bookList").permitAll()
+                        .requestMatchers("/api/comment/getAllComments").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -36,6 +36,17 @@ public class JwtUtil {
     //检查是否为合法的token
     public boolean validateToken(String token) {
         try {
+            //是否过期
+            Date expirationDate = Jwts.parserBuilder()
+                            .setSigningKey(SECRET_KEY)
+                            .build()
+                            .parseClaimsJws(token).getBody()
+                            .getExpiration();
+            if (expirationDate.before(new Date())) {
+                return false;
+            }
+
+            //是否合法
             Jwts.parserBuilder()
                     .setSigningKey(SECRET_KEY)
                     .build()

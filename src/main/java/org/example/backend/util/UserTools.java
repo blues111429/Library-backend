@@ -20,45 +20,38 @@ public class UserTools {
         UserTools.jwtUtil = jwtUtil;
     }
 
-    //仅获取token
-    private static String getToken(HttpServletRequest httpRequest) {
-        return httpRequest.getHeader("Authorization");
-    }
+    //获取token
+    private static String getToken(HttpServletRequest httpRequest) { return httpRequest.getHeader("Authorization"); }
+    //获取用户名
+    private static String getUsername(String token) { return jwtUtil.getUsernameFromToken(token); }
+    //获取用户
+    private static User getUser(String username) { return userMapper.findByUsername(username); }
 
-    //仅校验token
-    //未登录检验
+    //校验
+    //登录检验
     public static String tokenCheck(HttpServletRequest httpRequest) {
         String token = getToken(httpRequest);
-        if(token == null || !token.startsWith("Bearer ")) {
-            return "未授权访问，请先登录";
-        }
+        if(token == null || !token.startsWith("Bearer ")) {return "未授权访问,请先登录";}
 
         token = token.substring(7);
-        if(!jwtUtil.validateToken(token)) {
-            return "Token已过期,请重新登录";
-        }
+        if(!jwtUtil.validateToken(token)) {return "Token无效,请重新登录";}
+        //获取当前用户信息
+        String username =getUsername(token);
+        User user = getUser(username);
+        if(user==null) {return "用户不存在,请重新登录";}
+        System.out.println("当前用户:" + user);
         return "";
     }
     //管理员身份校验
     public static String adminCheck(HttpServletRequest httpRequest) {
-        //未登录
-        String message = tokenCheck(httpRequest);
-        if(!message.isEmpty()) {
-            return message;
-        }
-        //去掉‘Bearer’
+        //获取token、用户名、用户
         String token = getToken(httpRequest).substring(7);
-        String username;
-        try {
-            username = jwtUtil.getUsernameFromToken(token);
-        } catch (Exception e) {
-            return "Token已无效或已过期,请重新登陆";
-        }
-        //查找当前用户
-        User currentUser = userMapper.findByUsername(username);
+        String username = getUsername(token);
+        User currentUser = getUser(username);
+
         System.out.println("当前用户：" + currentUser);
         if(currentUser == null) { return "当前用户不存在"; }
-
+        //管理员身份
         if(!"管理员".equals(currentUser.getType_cn())) { return "权限不足，仅管理员可以访问"; }
 
         return "";
@@ -85,6 +78,10 @@ public class UserTools {
         //邮箱校验
         if(request.getEmail()==null || !request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             return "邮箱格式不对";
+        }
+        //密码
+        if(request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            return "密码不能为空";
         }
         return "";
     }
@@ -117,35 +114,35 @@ public class UserTools {
         //密码加密
         String encryptedPassword = PasswordUtil.encrypt(request.getPassword());
         //创建新用户
-        User user = new User();
-        user.setUsername(request.getPhone());
-        user.setPassword_hash(encryptedPassword);
-        user.setName(request.getName());
-        user.setGender(request.getGender());
-        user.setType(request.getType());
-        user.setType_cn(request.getType());
-        user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
-        user.setStatus(1);
+        User user = User.builder()
+                .username(request.getPhone())
+                .password_hash(encryptedPassword)
+                .name(request.getName())
+                .gender(request.getGender())
+                .type(request.getType())
+                .type_cn(request.getType())
+                .phone(request.getPhone())
+                .email(request.getEmail())
+                .status(1)
+                .build();
         System.out.println("注册用户信息"+user);
         return user;
     }
     //设置获取用户列表返回的response
     public static UserListResponse getUserListResponse(User user) {
-        UserListResponse response = new UserListResponse();
-        response.setUser_id(user.getUser_id());
-        response.setUsername(user.getUsername());
-        response.setName(user.getName());
-        response.setGender(user.getGender());
-        response.setType(user.getType());
-        response.setTypeCn(user.getType_cn());
-        response.setPhone(user.getPhone());
-        response.setEmail(user.getEmail());
-        response.setStatus(user.getStatus());
-        response.setCreate_time(user.getCreate_time());
-        response.setLast_login(user.getLast_login());
-        response.setStatus_update_time(user.getStatus_update_time());
-        return response;
+        return UserListResponse.builder()
+                .user_id(user.getUser_id())
+                .username(user.getUsername())
+                .gender(user.getGender())
+                .type(user.getType())
+                .typeCn(user.getType_cn())
+                .phone(user.getPhone())
+                .email(user.getEmail())
+                .status(user.getStatus())
+                .create_time(user.getCreate_time())
+                .last_login(user.getLast_login())
+                .status_update_time(user.getStatus_update_time())
+                .build();
     }
 
     //数据插入
