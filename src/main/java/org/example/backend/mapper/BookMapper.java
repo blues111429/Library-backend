@@ -31,9 +31,6 @@ public interface BookMapper {
     })
     Book findBookByIdWithTags(@Param("id") Integer id);
 
-
-
-
     // (ISBN)
     @Select("SELECT * FROM book WHERE isbn = #{isbn}")
     Book findBookByIsbn(@Param("isbn") String isbn);

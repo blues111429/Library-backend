@@ -1,9 +1,12 @@
 package org.example.backend.model;
 
+import lombok.Getter;
+
+@Getter
 public class FieldValue {
-    private String field;
-    private Object oldValue;
-    private Object newValue;
+    private final String field;
+    private final Object oldValue;
+    private final Object newValue;
 
     public FieldValue(String field, Object oldValue, Object newValue) {
         this.field = field;
@@ -11,15 +14,4 @@ public class FieldValue {
         this.newValue = newValue;
     }
 
-    public String getField() {
-        return field;
-    }
-
-    public Object getNewValue() {
-        return newValue;
-    }
-
-    public Object getOldValue() {
-        return oldValue;
-    }
 }
