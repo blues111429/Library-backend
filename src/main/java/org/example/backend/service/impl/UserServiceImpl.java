@@ -86,6 +86,11 @@ public class UserServiceImpl implements UserService {
         UserTools.adminLog(httpRequest, "删除用户(用户ID):"+request.getUserId());
         return Result.success("删除成功");
     }
+    //修改密码
+    @Override
+    public Result<String> resetPassword(HttpServletRequest httpRequest) {
+        return Result.success("修改成功");
+    }
     //获取用户信息
     @Override
     public Result<UserInfoResponse> userInfo(HttpServletRequest httpRequest) {
