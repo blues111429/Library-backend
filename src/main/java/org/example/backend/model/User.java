@@ -14,11 +14,11 @@ public class User {
     private String name;
     private String gender;
     private String type;
-    private String type_cn;
     private String phone;
     private String email;
     private Integer status;
     private LocalDateTime create_time;
     private LocalDateTime last_login;
     private LocalDateTime status_update_time;
+    private String type_cn;
 }

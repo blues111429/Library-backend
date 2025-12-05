@@ -16,7 +16,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Result<List<Comment>> getAllComments() {
-        return Result.success(commentMapper.comments());
+    public Result<List<Comment>> getAllComments(Integer bookId) {
+        List<Comment> comments = commentMapper.comments(bookId);
+        if(comments.isEmpty()) {
+            return Result.error("该图书暂无评论");
+        }
+        return Result.success(comments);
     }
 }

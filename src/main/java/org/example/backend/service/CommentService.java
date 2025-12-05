@@ -8,5 +8,5 @@ import java.util.List;
 
 @Service
 public interface CommentService {
-    Result<List<Comment>> getAllComments();
+    Result<List<Comment>> getAllComments(Integer bookId);
 }

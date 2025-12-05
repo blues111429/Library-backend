@@ -33,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/user/login", "/api/user/register", "/api/user/logout").permitAll()
                         .requestMatchers("/api/book/bookList").permitAll()
-                        .requestMatchers("/api/comment/getAllComments").permitAll()
+                        .requestMatchers("/api/comment/getComments/**").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
