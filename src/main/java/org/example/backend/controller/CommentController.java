@@ -1,12 +1,11 @@
 package org.example.backend.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.backend.dto.request.comment.PublishCommentRequest;
 import org.example.backend.dto.response.Result;
 import org.example.backend.model.Comment;
 import org.example.backend.service.CommentService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,4 +19,7 @@ public class CommentController {
 
     @GetMapping("/getComments/{bookId}")
     public Result<List<Comment>> getAllComments(@PathVariable Integer bookId) {  return commentService.getAllComments(bookId); }
+
+    @PostMapping("/publishComment")
+    public Result<String> publishComment(@RequestBody PublishCommentRequest request, HttpServletRequest httpRequest) { return commentService.publishComment(request, httpRequest); }
 }
