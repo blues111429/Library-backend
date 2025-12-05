@@ -17,8 +17,9 @@ public interface UserMapper {
     User findUserById(@Param("userId") int userId);
 
     //根据用户名查找用户
-    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` Where username  = #{username } LIMIT 1")
-    User findByUsername(@Param("username") String username );
+    @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn " +
+            "FROM `user` WHERE username = #{username} LIMIT 1")
+    User findByUsername(@Param("username") String username);
 
     //检查用户状态
     @Select("Select status FROM `user` WHERE phone = #{phone}")

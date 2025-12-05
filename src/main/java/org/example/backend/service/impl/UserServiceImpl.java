@@ -33,8 +33,10 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByUsername(request.getPhone());
         //是否存在
         if(user == null) { return Result.error("用户不存在"); }
+        System.out.println("当前登录用户:"+user);
         //检查状态
         if(userMapper.userStatus(user.getUsername()) <= 0) {return Result.error("该用户已被冻结或被删除，请联系管理员");}
+        else { System.out.println("用户状态正常"); }
         //账密
         boolean match = PasswordUtil.matches(request.getPassword(), user.getPassword_hash());
         if(!match) { return Result.error("密码错误"); }

@@ -4,6 +4,7 @@ import org.example.backend.dto.response.Result;
 import org.example.backend.model.Comment;
 import org.example.backend.service.CommentService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +18,6 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping("/getAllComments")
-    public Result<List<Comment>> getAllComments() {  return commentService.getAllComments(); }
+    @GetMapping("/getComments/{bookId}")
+    public Result<List<Comment>> getAllComments(@PathVariable Integer bookId) {  return commentService.getAllComments(bookId); }
 }
