@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
         if(oldUser == null) {return Result.error("该用户不存在");}
         System.out.println("修改前用户:" + oldUser);
         if(request.getPhone() !=  null && !request.getPhone().equals(oldUser.getPhone())) {
-            if(userMapper.findByOnlyUsername(request.getPhone()) != null) {
+            if(userMapper.findByUsername(request.getPhone()) != null) {
                 return Result.error("该手机号已被使用");
             }
         }

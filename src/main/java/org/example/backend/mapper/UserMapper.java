@@ -16,7 +16,7 @@ public interface UserMapper {
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn FROM `user` WHERE user_id = #{userId}")
     User findUserById(@Param("userId") int userId);
 
-    //根据用户名查找用户
+    //根据用户名查找用户(可用于唯一性查询)
     @Select("SELECT *, CASE type WHEN 'student' THEN '学生' WHEN 'teacher' THEN '教师' WHEN 'admin' THEN '管理员' END AS type_cn " +
             "FROM `user` WHERE username = #{username} LIMIT 1")
     User findByUsername(@Param("username") String username);
@@ -25,13 +25,9 @@ public interface UserMapper {
     @Select("Select status FROM `user` WHERE phone = #{phone}")
     Integer userStatus(@Param("phone") String phone);
 
-    //用户名唯一性查询
-    @Select("SELECT * FROM `user` WHERE username = #{username}")
-    User findByOnlyUsername(@Param("username") String username);
-
     //插入用户(用户、管理员)
-    @Insert("INSERT INTO `user` (username, password_hash, name, gender, type, phone, email, status, create_time)" +
-            "VALUES (#{username}, #{password_hash}, #{name}, #{gender}, #{type}, #{phone}, #{email}, #{status}, NOW())")
+    @Insert("INSERT INTO `user` (username, password_hash, name, gender, type, phone, email, status, create_time, last_login, status_update_time)" +
+            "VALUES (#{username}, #{password_hash}, #{name}, #{gender}, #{type}, #{phone}, #{email}, #{status}, NOW(), null, null)")
     @Options(useGeneratedKeys = true, keyProperty = "user_id")
     int insert(User user);
 

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserTools {
     //依赖注入
-    private static UserMapper userMapper = null;
-    private static AdminMapper adminMapper = null;
+    private static UserMapper userMapper;
+    private static AdminMapper adminMapper;
     private static JwtUtil jwtUtil;
     public UserTools(UserMapper userMapper, AdminMapper adminMapper, JwtUtil jwtUtil) {
         UserTools.userMapper = userMapper;
@@ -67,7 +67,7 @@ public class UserTools {
     //注册数据校验
     public static String registerCheck(RegisterRequest request) {
         //用户名重复校验
-        User existing = userMapper.findByOnlyUsername(request.getPhone());
+        User existing = userMapper.findByUsername(request.getPhone());
         if (existing != null) {
             return "该手机号已被注册";
         }
