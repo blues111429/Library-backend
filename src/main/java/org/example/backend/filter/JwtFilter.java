@@ -77,6 +77,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 path.equals("/api/user/register") ||
                 path.equals("/api/user/logout") ||
                 path.equals("/api/book/bookList") ||
-                path.matches("/api/comment/getComments/\\d+");
+                path.matches("/api/comment/getComments");
     }
 }
