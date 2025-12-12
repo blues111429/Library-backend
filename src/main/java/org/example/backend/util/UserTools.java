@@ -132,6 +132,7 @@ public class UserTools {
     public static UserListResponse getUserListResponse(User user) {
         return UserListResponse.builder()
                 .user_id(user.getUser_id())
+                .name(user.getName())
                 .username(user.getUsername())
                 .gender(user.getGender())
                 .type(user.getType())
